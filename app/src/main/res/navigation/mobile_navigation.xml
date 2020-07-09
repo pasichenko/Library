@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_active">
+
+    <fragment
+        android:id="@+id/nav_active"
+        android:name="com.makspasich.library.ui.activeProduct.ActiveProductFragment"
+        android:label="@string/menu_active"
+        tools:layout="@layout/fragment_active_product" >
+        <action
+            android:id="@+id/action_open_detailProductFragment"
+            app:destination="@id/detailProductFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_archive"
+        android:name="com.makspasich.library.ui.archiveProduct.ArchiveProductFragment"
+        android:label="@string/menu_archive"
+        tools:layout="@layout/fragment_archive_product" />
+
+    <fragment
+        android:id="@+id/nav_slideshow"
+        android:name="com.makspasich.library.ui.statistic.StatisticFragment"
+        android:label="@string/menu_slideshow"
+        tools:layout="@layout/fragment_statistic" />
+    <fragment
+        android:id="@+id/detailProductFragment"
+        android:name="com.makspasich.library.ui.detail.DetailProductFragment"
+        android:label="@string/detail_product"
+        tools:layout="@layout/detail_product_fragment">
+
+        <argument
+            android:name="key_product"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_detailProductFragment_to_nav_home"
+            app:destination="@id/nav_active" />
+    </fragment>
+</navigation>
