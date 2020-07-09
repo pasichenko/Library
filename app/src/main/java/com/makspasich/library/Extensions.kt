@@ -1,9 +1,10 @@
 package com.makspasich.library
 
-import android.app.ProgressDialog.show
+import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -60,10 +61,15 @@ fun View.showSnackbar(
  * Overload extension for using string resources
  */
 fun View.showSnackbar(
-    snackbarText: Int,
-    timeLength: Int,
-    textAction: String? = null,
-    listener: View.OnClickListener? = null
+        snackbarText: Int,
+        timeLength: Int,
+        textAction: String? = null,
+        listener: View.OnClickListener? = null
 ) {
     showSnackbar(context.getString(snackbarText), timeLength, textAction, listener)
+}
+
+fun View.hideKeyboard() {
+    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+    imm?.hideSoftInputFromWindow(this.windowToken, 0)
 }

@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = AppBarConfiguration.Builder(
-                R.id.nav_active, R.id.nav_archive, R.id.nav_slideshow)
+                R.id.nav_active, R.id.nav_statistic)
                 .setDrawerLayout(binding.drawerLayout)
                 .build()
         val navController = Navigation.findNavController(this, R.id.nav_host_fragment)

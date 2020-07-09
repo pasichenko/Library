@@ -7,15 +7,11 @@
         <item
             android:id="@+id/nav_active"
             android:icon="@drawable/ic_menu_camera"
-            android:title="@string/menu_active" />
+            android:title="@string/menu_products" />
         <item
-            android:id="@+id/nav_archive"
+            android:id="@+id/nav_statistic"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="@string/menu_archive" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="@string/menu_slideshow" />
+            android:title="@string/menu_statistic" />
     </group>
     <group android:checkableBehavior="none">
         <item

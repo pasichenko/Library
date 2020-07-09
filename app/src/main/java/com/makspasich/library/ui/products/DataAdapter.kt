@@ -1,4 +1,4 @@
-package com.makspasich.library.ui.archiveProduct
+package com.makspasich.library.ui.products
 
 import android.content.Context
 import android.util.Log

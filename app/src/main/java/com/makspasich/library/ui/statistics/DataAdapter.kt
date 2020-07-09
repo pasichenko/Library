@@ -1,4 +1,4 @@
-package com.makspasich.library.ui.activeProduct
+package com.makspasich.library.ui.statistics
 
 import android.content.Context
 import android.util.Log
@@ -10,15 +10,16 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.Query
-import com.makspasich.library.databinding.ItemProductBinding
-import com.makspasich.library.models.Product
+import com.google.firebase.database.ktx.getValue
+import com.makspasich.library.databinding.ItemStatisticBinding
+import com.makspasich.library.models.ProductStatistic
 import java.util.*
 
 class DataAdapter(private val query: Query) : RecyclerView.Adapter<DataViewHolder>() {
     private var context: Context? = null
     private val childEventListener: ChildEventListener?
     private val productIds: MutableList<String?> = ArrayList()
-    private val products: MutableList<Product?> = ArrayList()
+    private val products: MutableList<ProductStatistic?> = ArrayList()
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
         context = recyclerView.context
@@ -26,7 +27,7 @@ class DataAdapter(private val query: Query) : RecyclerView.Adapter<DataViewHolde
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DataViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = ItemProductBinding.inflate(inflater, parent, false)
+        val binding = ItemStatisticBinding.inflate(inflater, parent, false)
         return DataViewHolder(binding)
     }
 
@@ -54,14 +55,14 @@ class DataAdapter(private val query: Query) : RecyclerView.Adapter<DataViewHolde
             override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
                 Log.d(TAG, "onChildAdded:" + dataSnapshot.key)
                 productIds.add(dataSnapshot.key)
-                val product = dataSnapshot.getValue(Product::class.java)
+                val product = dataSnapshot.getValue<ProductStatistic>()
                 products.add(product)
                 notifyItemInserted(productIds.size - 1)
             }
 
             override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
                 Log.d(TAG, "onChildChanged:" + dataSnapshot.key)
-                val product = dataSnapshot.getValue(Product::class.java)
+                val product = dataSnapshot.getValue<ProductStatistic>()
                 val productKey = dataSnapshot.key
                 val productIndex = productIds.indexOf(productKey)
                 if (productIndex > -1 && product != null) {

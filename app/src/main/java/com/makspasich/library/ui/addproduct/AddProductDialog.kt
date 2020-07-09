@@ -2,6 +2,7 @@ package com.makspasich.library.ui.addproduct
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,12 +16,10 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.google.android.material.textfield.TextInputLayout
-import com.makspasich.library.R
-import com.makspasich.library.afterTextChanged
+import com.makspasich.library.*
 import com.makspasich.library.databinding.AddProductBinding
 import com.makspasich.library.models.ProductName
 import com.makspasich.library.models.ProductSize
-import com.makspasich.library.twoWayBinding
 
 class AddProductDialog private constructor() : DialogFragment() {
     private lateinit var binding: AddProductBinding
@@ -45,18 +44,18 @@ class AddProductDialog private constructor() : DialogFragment() {
         super.onActivityCreated(savedInstanceState)
         setupFieldsLiveData()
         arguments?.let {
-            viewModel.start(it.getString("key"));
+            viewModel.start(it.getString("key"))
             viewModel.setYearProduct(it.getString("year"))
 
         }
         viewModel.namesLiveData.observe(requireParentFragment(), Observer {
-            arrayNamesAdapter = ArrayAdapter(requireContext(),
+            arrayNamesAdapter = NameArrayAdapter(requireContext(),
                     android.R.layout.simple_dropdown_item_1line,
                     it)
             binding.nameEt.setAdapter(arrayNamesAdapter)
         })
         viewModel.sizesLiveData.observe(requireParentFragment(), Observer {
-            arraySizesAdapter = ArrayAdapter(requireContext(),
+            arraySizesAdapter = SizeArrayAdapter(requireContext(),
                     android.R.layout.simple_dropdown_item_1line,
                     it)
             binding.sizeEt.setAdapter(arraySizesAdapter)
@@ -67,6 +66,8 @@ class AddProductDialog private constructor() : DialogFragment() {
                 android.R.layout.simple_dropdown_item_1line,
                 listMonth)
         binding.monthEt.setAdapter(arrayMonthAdapter)
+        binding.monthTil.setOnClickListener { view?.hideKeyboard() }
+
         initializeAutoCompleteSpinners(binding.nameTil, binding.nameEt, "Set name")
         initializeAutoCompleteSpinners(binding.sizeTil, binding.sizeEt, "Set size")
         initializeAutoCompleteSpinners(binding.monthTil, binding.monthEt, "Set size")
@@ -105,9 +106,26 @@ class AddProductDialog private constructor() : DialogFragment() {
             val dialog = AddProductDialog()
             val bundle = Bundle()
             bundle.putString("key", keyProduct)
-            bundle.putString("year", keyProduct.split("_")[1])
+            bundle.putString("year", 2020.toString())
             dialog.arguments = bundle
             return dialog
         }
+
+        class NameArrayAdapter(
+                context1: Context,
+                textViewResourceId: Int,
+                objects: List<ProductName>
+        ) : CustomAdapter<ProductName>(context1, textViewResourceId, objects) {
+            override fun adapter(t: ProductName): String? = t.name
+        }
+
+        class SizeArrayAdapter(
+                context1: Context,
+                textViewResourceId: Int,
+                objects: List<ProductSize>
+        ) : CustomAdapter<ProductSize>(context1, textViewResourceId, objects) {
+            override fun adapter(t: ProductSize): String? = t.size
+        }
+
     }
 }

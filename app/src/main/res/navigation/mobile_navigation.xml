@@ -7,25 +7,22 @@
 
     <fragment
         android:id="@+id/nav_active"
-        android:name="com.makspasich.library.ui.activeProduct.ActiveProductFragment"
-        android:label="@string/menu_active"
-        tools:layout="@layout/fragment_active_product" >
+        android:name="com.makspasich.library.ui.products.ProductsFragment"
+        android:label="@string/menu_products"
+        tools:layout="@layout/fragment_products">
         <action
             android:id="@+id/action_open_detailProductFragment"
-            app:destination="@id/detailProductFragment" />
+            app:destination="@id/detailProductFragment"
+            app:popUpTo="@id/detailProductFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
-        android:id="@+id/nav_archive"
-        android:name="com.makspasich.library.ui.archiveProduct.ArchiveProductFragment"
-        android:label="@string/menu_archive"
-        tools:layout="@layout/fragment_archive_product" />
+        android:id="@+id/nav_statistic"
+        android:name="com.makspasich.library.ui.statistics.StatisticsFragment"
+        android:label="@string/menu_statistic"
+        tools:layout="@layout/fragment_statistics" />
 
-    <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.makspasich.library.ui.statistic.StatisticFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_statistic" />
     <fragment
         android:id="@+id/detailProductFragment"
         android:name="com.makspasich.library.ui.detail.DetailProductFragment"
@@ -37,6 +34,8 @@
             app:argType="string" />
         <action
             android:id="@+id/action_detailProductFragment_to_nav_home"
-            app:destination="@id/nav_active" />
+            app:destination="@id/nav_active"
+            app:popUpTo="@id/nav_active"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

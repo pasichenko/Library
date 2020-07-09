@@ -80,6 +80,7 @@ class AddProductViewModel : ViewModel() {
         val product = Product(
                 key = _keyLiveData.value,
                 uid = uid,
+                year = _yearLiveData.value,
                 name = _nameLiveData.value,
                 size = _sizeLiveData.value,
                 month = _monthLiveData.value,
@@ -91,6 +92,7 @@ class AddProductViewModel : ViewModel() {
             _isAddedLiveData.value = true
         }
     }
+
     private fun initSizes() {
         Firebase.database.reference.child("product-sizes").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
