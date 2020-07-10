@@ -3,36 +3,88 @@ package com.makspasich.library.ui.products
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.database.*
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.makspasich.library.BarcodeScannerActivity
+import com.makspasich.library.R
 import com.makspasich.library.databinding.FragmentProductsBinding
 import com.makspasich.library.models.Product
 import com.makspasich.library.ui.addproduct.AddProductDialog
 
 class ProductsFragment : Fragment() {
     private lateinit var binding: FragmentProductsBinding
-    private val productsViewModel: ProductsViewModel by viewModels()
+    private val viewModel: ProductsViewModel by viewModels()
+    private lateinit var adapter: DataAdapter
+
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentProductsBinding.inflate(inflater, container, false)
-        val query: Query = FirebaseDatabase.getInstance().reference.child("active")
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.adapter = DataAdapter(query)
         binding.fab.setOnClickListener {
             val intent = Intent(context, BarcodeScannerActivity::class.java)
             startActivityForResult(intent, REQUEST_CODE)
         }
+        viewModel.query.observe(viewLifecycleOwner, Observer {
+            adapter = DataAdapter(it)
+            binding.recyclerView.adapter = adapter
+        })
+        setHasOptionsMenu(true)
         return binding.root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.setFiltering(ProductsFilterType.ALL_PRODUCTS)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        adapter.cleanupListener()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.products_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                R.id.menu_filter -> {
+                    showFilteringPopUpMenu()
+                    true
+                }
+                else -> false
+            }
+
+    private fun showFilteringPopUpMenu() {
+        val view = activity?.findViewById<View>(R.id.menu_filter) ?: return
+        PopupMenu(requireContext(), view).run {
+            menuInflater.inflate(R.menu.filter_products, menu)
+
+            setOnMenuItemClickListener {
+                viewModel.setFiltering(
+                        when (it.itemId) {
+                            R.id.all_products -> ProductsFilterType.ALL_PRODUCTS
+                            R.id.sort_by_name -> ProductsFilterType.SORT_BY_NAME
+                            R.id.sort_by_size -> ProductsFilterType.SORT_BY_SIZE
+                            else -> ProductsFilterType.ALL_PRODUCTS
+                        }
+                )
+                true
+            }
+            show()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
