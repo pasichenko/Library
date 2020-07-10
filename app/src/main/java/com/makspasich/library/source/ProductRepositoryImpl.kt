@@ -11,6 +11,7 @@ class ProductRepositoryImpl : ProductRepository {
     private val activeReference = Firebase.database.reference.child("active")
     private val productNameReference = Firebase.database.reference.child("product-names")
     private val productNameIndexReference = Firebase.database.reference.child("name-index")
+    private val productSizeIndexReference = Firebase.database.reference.child("size-index")
     private val statisticReference = Firebase.database.reference.child("product-statistic")
     private val productSizeReference = Firebase.database.reference.child("product-sizes")
 
@@ -23,7 +24,7 @@ class ProductRepositoryImpl : ProductRepository {
             }
         }
         product.size?.let {
-            writeProductSize(ProductSize(size = it))
+            writeProductSize(it)
         }
     }
 
@@ -49,47 +50,38 @@ class ProductRepositoryImpl : ProductRepository {
 
     override fun writeProductName(productName: String, onComplete: (ProductName) -> Unit) {
         productNameIndexReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            fun createName(productName: String, index: Index): ProductName {
+                val key: String = statisticReference.push().key!!
+                val productStatistic = ProductStatistic(
+                        name = productName,
+                        key = key
+                )
+                statisticReference.child(key).setValue(productStatistic)
+                val productNameObj = ProductName(
+                        name = productName,
+                        key = key
+                )
+                productNameReference.child(key).setValue(productNameObj)
+                index.index[productName] = key
+                productNameIndexReference.setValue(index)
+                return productNameObj
+            }
+
             override fun onDataChange(snapshot: DataSnapshot) {
-                var index = snapshot.getValue(NameIndex::class.java)
+                var index = snapshot.getValue(Index::class.java)
                 val productNameObj: ProductName
-                var productStatistic: ProductStatistic
                 if (index != null) {
-                    if (!index.index.containsKey(productName)) {
-                        val key: String = statisticReference.push().key!!
-                        productStatistic = ProductStatistic(
-                                name = productName,
-                                key = key
-                        )
-                        statisticReference.child(key).setValue(productStatistic)
-                        productNameObj = ProductName(
-                                name = productName,
-                                key = key
-                        )
-                        productNameReference.child(key).setValue(productNameObj)
-                        index.index[productName] = key
-                        productNameIndexReference.setValue(index)
+                    productNameObj = if (!index.index.containsKey(productName)) {
+                        createName(productName = productName, index = index)
                     } else {
-                        productNameObj = ProductName(
+                        ProductName(
                                 name = productName,
                                 key = index.index.getValue(productName)
                         )
                     }
                 } else {
-                    index = NameIndex()
-                    val key: String = statisticReference.push().key!!
-                    productStatistic = ProductStatistic(
-                            name = productName,
-                            key = key
-                    )
-                    statisticReference.child(key).setValue(productStatistic)
-                    productNameObj = ProductName(
-                            name = productName,
-                            key = key
-                    )
-                    productNameReference.child(key).setValue(productNameObj)
-                    index.index[productName] = key
-
-                    productNameIndexReference.setValue(index)
+                    index = Index()
+                    productNameObj = createName(productName = productName, index = index)
                 }
                 onComplete.invoke(productNameObj)
             }
@@ -100,7 +92,7 @@ class ProductRepositoryImpl : ProductRepository {
         })
     }
 
-    fun increment(product: Product) {
+    private fun increment(product: Product) {
         statisticReference.child(product.nameObj!!.key!!).runTransaction(object : Transaction.Handler {
             override fun doTransaction(mutableData: MutableData): Transaction.Result {
                 val p = mutableData.getValue<ProductStatistic>()
@@ -125,7 +117,7 @@ class ProductRepositoryImpl : ProductRepository {
         })
     }
 
-    fun decrement(product: Product) {
+    private fun decrement(product: Product) {
         statisticReference.child(product.nameObj!!.key!!).runTransaction(object : Transaction.Handler {
             override fun doTransaction(mutableData: MutableData): Transaction.Result {
                 val p = mutableData.getValue<ProductStatistic>()
@@ -150,20 +142,33 @@ class ProductRepositoryImpl : ProductRepository {
         })
     }
 
-    override fun writeProductSize(productSize: ProductSize) {
+    override fun writeProductSize(productSize: String) {
         productSizeReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            fun createSize(productSize: String): ProductSize {
+                val key: String = productSizeReference.push().key!!
+                val productSizeObj = ProductSize(
+                        size = productSize,
+                        key = key
+                )
+                productSizeReference.child(key).setValue(productSizeObj)
+                return productSizeObj
+            }
+
             override fun onDataChange(snapshot: DataSnapshot) {
                 var flag: Boolean = false
+                var productSizeObj: ProductSize
                 for (child in snapshot.children) {
                     val productSizeFromDB = child.getValue<ProductSize>()
                     productSizeFromDB?.let {
-                        flag = productSize.size == it.size
+                        flag = productSize == it.size
+                        productSizeObj = it
                     }
+                    if (flag) break
                 }
                 if (!flag) {
-                    productSize.key = productSizeReference.push().key!!
-                    productSizeReference.child(productSize.key!!).setValue(productSize)
+                    productSizeObj = createSize(productSize = productSize)
                 }
+//                onComplete.invoke(productSizeObj)
             }
 
             override fun onCancelled(error: DatabaseError) {
