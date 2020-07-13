@@ -1,4 +1,4 @@
-package com.makspasich.library.ui.addproduct
+package com.makspasich.library.ui.addeditproduct
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,16 +11,14 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
+import com.makspasich.library.Event
 import com.makspasich.library.models.Product
 import com.makspasich.library.models.ProductName
 import com.makspasich.library.models.ProductSize
 import com.makspasich.library.source.ProductRepositoryImpl
 import kotlinx.coroutines.launch
 
-class AddProductViewModel : ViewModel() {
-
-    private val _dataLoading = MutableLiveData<Boolean>()
-    val dataLoading: LiveData<Boolean> = _dataLoading
+class AddEditProductViewModel : ViewModel() {
 
     private val _keyLiveData = MutableLiveData<String>()
     val keyLiveData: LiveData<String> = _keyLiveData
@@ -39,60 +37,25 @@ class AddProductViewModel : ViewModel() {
     private val _monthLiveData = MutableLiveData<String>()
     val monthLiveData: LiveData<String> = _monthLiveData
 
+    private val _dataLoading = MutableLiveData<Boolean>()
+    val dataLoading: LiveData<Boolean> = _dataLoading
+
     private val _sizesLiveData = MutableLiveData<List<ProductSize>>()
     val sizesLiveData: LiveData<List<ProductSize>> = _sizesLiveData
 
     private val _namesLiveData = MutableLiveData<List<ProductName>>()
     val namesLiveData: LiveData<List<ProductName>> = _namesLiveData
 
-    private val _isAddedLiveData = MutableLiveData<Boolean>()
-    val isAddedLiveData: LiveData<Boolean> = _isAddedLiveData
+    private val _productUpdatedEvent = MutableLiveData<Event<Unit>>()
+    val productUpdatedEvent: LiveData<Event<Unit>> = _productUpdatedEvent
 
-    private var postId: String? = null
+    private val _isSavedLiveData = MutableLiveData<Boolean>()
+    val isSavedLiveData: LiveData<Boolean> = _isSavedLiveData
 
-    private var isNewPost: Boolean = false
+    private var isNewProduct: Boolean = false
 
     private var isDataLoaded = false
-
-    fun setKeyProduct(key: String?) {
-        _keyLiveData.value = key
-    }
-
-    fun setYearProduct(year: String?) {
-        _yearLiveData.value = year
-    }
-
-    fun setNameProduct(name: String?) {
-        _nameLiveData.value = name
-    }
-
-    fun setSizeProduct(size: String?) {
-        _sizeLiveData.value = size
-    }
-
-    fun setMonthProduct(month: String?) {
-        _monthLiveData.value = month
-    }
-
-    fun addProduct() {
-
-
-        val product = Product(
-                key = _keyLiveData.value,
-                uid = uid,
-                year = _yearLiveData.value,
-                name = _nameLiveData.value,
-                size = _sizeLiveData.value,
-                month = _monthLiveData.value,
-                isActive = true
-        )
-        _keyLiveData.value?.let { keyString ->
-            val productRepository = ProductRepositoryImpl()
-            productRepository.writeProduct(keyString, product)
-            _isAddedLiveData.value = true
-        }
-    }
-
+    private lateinit var oldProduct: Product
     private fun initSizes() {
         Firebase.database.reference.child("product-sizes").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -132,49 +95,46 @@ class AddProductViewModel : ViewModel() {
         })
     }
 
-    fun start(keyProduct: String?) {
+    fun start(keyProduct: String, isNewProduct: Boolean) {
         if (_dataLoading.value == true) {
             return
         }
 
-        setKeyProduct(keyProduct)
+        _keyLiveData.value = keyProduct
 
-        if (keyProduct == null) {
-            // No need to populate, it's a new post
-            isNewPost = true
-            return
-        }
         if (isDataLoaded) {
             // No need to populate, already have data.
             return
         }
 
-        isNewPost = false
+        this.isNewProduct = isNewProduct
         _dataLoading.value = true
-
-        viewModelScope.launch {
-            Firebase.database.reference.child("active")
-                    .child(keyProduct)
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(rootSnapshot: DataSnapshot) {
-                            if (rootSnapshot.exists()) {
-                                val product = rootSnapshot.getValue<Product>()
-                                onPostLoaded(product!!)
-                            } else {
-                                onDataNotAvailable()
+        if (!isNewProduct) {
+            viewModelScope.launch {
+                Firebase.database.reference.child("active")
+                        .child(keyProduct)
+                        .addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(rootSnapshot: DataSnapshot) {
+                                if (rootSnapshot.exists()) {
+                                    val product = rootSnapshot.getValue<Product>()
+                                    onPostLoaded(product!!)
+                                } else {
+                                    onDataNotAvailable()
+                                }
                             }
-                        }
 
-                        override fun onCancelled(p0: DatabaseError) {
-                            TODO("Not yet implemented")
-                        }
-                    })
+                            override fun onCancelled(p0: DatabaseError) {
+                                TODO("Not yet implemented")
+                            }
+                        })
+            }
         }
     }
 
     private fun onPostLoaded(product: Product) {
+        oldProduct = product
         _keyLiveData.value = product.key
-        _yearLiveData.value = product.key!!.split("_")[1]
+        _yearLiveData.value = product.year
         _nameLiveData.value = product.name
         _sizeLiveData.value = product.size
         _monthLiveData.value = product.month
@@ -186,8 +146,51 @@ class AddProductViewModel : ViewModel() {
         _dataLoading.value = false
     }
 
+    fun saveProduct() {
+        val product = Product(
+                key = _keyLiveData.value,
+                uid = uid,
+                year = _yearLiveData.value,
+                name = _nameLiveData.value,
+                size = _sizeLiveData.value,
+                month = _monthLiveData.value,
+                isActive = true
+        )
+        val productRepository = ProductRepositoryImpl()
+        if (isNewProduct) {
+            productRepository.addProduct(_keyLiveData.value!!, product)
+        } else {
+            productRepository.updateProduct(_keyLiveData.value!!, oldProduct = oldProduct, newProduct = product)
+
+        }
+        _isSavedLiveData.value = true
+
+
+        _productUpdatedEvent.value = Event(Unit)
+    }
+
     init {
         initSizes()
         initNames()
+    }
+
+    fun setKeyProduct(key: String?) {
+        _keyLiveData.value = key
+    }
+
+    fun setYearProduct(year: String?) {
+        _yearLiveData.value = year
+    }
+
+    fun setNameProduct(name: String?) {
+        _nameLiveData.value = name
+    }
+
+    fun setSizeProduct(size: String?) {
+        _sizeLiveData.value = size
+    }
+
+    fun setMonthProduct(month: String?) {
+        _monthLiveData.value = month
     }
 }

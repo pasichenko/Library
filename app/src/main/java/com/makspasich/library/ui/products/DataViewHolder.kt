@@ -1,5 +1,6 @@
 package com.makspasich.library.ui.products
 
+import android.graphics.Color
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.makspasich.library.databinding.ItemProductBinding
@@ -16,6 +17,9 @@ class DataViewHolder(private val binding: ItemProductBinding) : RecyclerView.Vie
             itemView.setOnClickListener { view ->
                 val action = ProductsFragmentDirections.actionOpenDetailProductFragment(it.key!!)
                 Navigation.createNavigateOnClickListener(action).onClick(view)
+            }
+            if (!it.isActive) {
+                binding.containerCl.setBackgroundColor(Color.parseColor("#E4E3E3"))
             }
         }
     }

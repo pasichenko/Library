@@ -20,7 +20,6 @@ import com.makspasich.library.BarcodeScannerActivity
 import com.makspasich.library.R
 import com.makspasich.library.databinding.FragmentProductsBinding
 import com.makspasich.library.models.Product
-import com.makspasich.library.ui.addproduct.AddProductDialog
 
 class ProductsFragment : Fragment() {
     private lateinit var binding: FragmentProductsBinding
@@ -101,7 +100,12 @@ class ProductsFragment : Fragment() {
                                     findNavController().navigate(action)
                                 }
                             } else {
-                                AddProductDialog.newInstance(keyProduct).show(childFragmentManager, "tag")
+                                val action = ProductsFragmentDirections
+                                        .actionAddEditProductFragment(
+                                                keyProduct = keyProduct,
+                                                isNewProduct = true,
+                                                title = getString(R.string.add_product))
+                                findNavController().navigate(action)
                             }
                         }
 

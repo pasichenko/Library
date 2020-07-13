@@ -9,6 +9,7 @@
     android:focusable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_cl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp">

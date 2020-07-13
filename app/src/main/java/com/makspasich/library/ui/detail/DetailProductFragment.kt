@@ -1,5 +1,6 @@
 package com.makspasich.library.ui.detail
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -10,7 +11,6 @@ import androidx.navigation.fragment.navArgs
 import com.makspasich.library.EventObserver
 import com.makspasich.library.R
 import com.makspasich.library.databinding.DetailProductFragmentBinding
-import com.makspasich.library.ui.addproduct.AddProductDialog
 
 class DetailProductFragment : Fragment() {
 
@@ -36,10 +36,10 @@ class DetailProductFragment : Fragment() {
                 binding.sizeTv.text = it.size
                 binding.monthTv.text = it.month
                 binding.statusTv.apply {
-                    text = if (it.isActive){
+                    text = if (it.isActive) {
                         setBackgroundColor(resources.getColor(R.color.active))
                         "Active"
-                    }else{
+                    } else {
                         setBackgroundColor(resources.getColor(R.color.archive))
                         "Archive"
                     }
@@ -58,16 +58,29 @@ class DetailProductFragment : Fragment() {
             findNavController().navigate(action)
         })
         viewModel.editTaskEvent.observe(viewLifecycleOwner, EventObserver {
-            AddProductDialog.newInstance(args.keyProduct).show(childFragmentManager, "tag")
+            val action = DetailProductFragmentDirections
+                    .actionDetailProductFragmentToAddEditProductFragment(
+                            keyProduct = args.keyProduct,
+                            isNewProduct = false,
+                            title = getString(R.string.edit_product))
+            findNavController().navigate(action)
         })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_delete -> {
-                viewModel.deleteProduct()
+                AlertDialog.Builder(context)
+                        .setTitle("WARNING")
+                        .setMessage("This a counter and its values will be deleted!")
+                        .setIcon(R.drawable.ic_warning)
+                        .setPositiveButton("OK") { _, _ -> viewModel.deleteProduct() }
+                        .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+                        .create()
+                        .show()
                 true
-            }R.id.menu_archive -> {
+            }
+            R.id.menu_archive -> {
                 viewModel.archiveProduct()
                 true
             }

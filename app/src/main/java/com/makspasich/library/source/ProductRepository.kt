@@ -4,7 +4,8 @@ import com.makspasich.library.models.Product
 import com.makspasich.library.models.ProductName
 
 interface ProductRepository {
-    fun writeProduct(key: String, product: Product)
+    fun addProduct(key: String, product: Product)
+    fun updateProduct(key: String, oldProduct: Product, newProduct: Product)
     fun moveToActive(product: Product)
     fun moveToArchive(product: Product)
     fun deleteProduct(product: Product)

@@ -15,7 +15,7 @@ class ProductRepositoryImpl : ProductRepository {
     private val statisticReference = Firebase.database.reference.child("product-statistic")
     private val productSizeReference = Firebase.database.reference.child("product-sizes")
 
-    override fun writeProduct(key: String, product: Product) {
+    override fun addProduct(key: String, product: Product) {
         product.name?.let { name ->
             writeProductName(name) { productNameObj ->
                 product.nameObj = productNameObj
@@ -26,6 +26,11 @@ class ProductRepositoryImpl : ProductRepository {
         product.size?.let {
             writeProductSize(it)
         }
+    }
+
+    override fun updateProduct(key: String, oldProduct: Product, newProduct: Product) {
+        deleteProduct(product = oldProduct)
+        addProduct(key, newProduct)
     }
 
     override fun moveToActive(product: Product) {

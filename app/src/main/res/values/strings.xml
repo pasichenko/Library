@@ -19,4 +19,22 @@
     <string name="nav_all">All product</string>
     <string name="nav_sort_by_name">Sort by name</string>
     <string name="nav_sort_by_size">Sort by size</string>
+    <string name="edit_product">Edit product</string>
+    <string name="add_product">Add product</string>
+    <string name="data_loading">Data loading</string>
+
+    <string-array name="months">
+        <item> January</item>
+        <item> February</item>
+        <item> March</item>
+        <item> April</item>
+        <item> May</item>
+        <item> June</item>
+        <item> July</item>
+        <item> August</item>
+        <item> September</item>
+        <item> October</item>
+        <item> November</item>
+        <item> December</item>
+    </string-array>
 </resources>
