@@ -16,8 +16,8 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
-import com.makspasich.library.BarcodeScannerActivity
 import com.makspasich.library.R
+import com.makspasich.library.barcodescanner.LiveBarcodeScanningActivity
 import com.makspasich.library.databinding.FragmentProductsBinding
 import com.makspasich.library.models.Product
 
@@ -31,7 +31,7 @@ class ProductsFragment : Fragment() {
         binding = FragmentProductsBinding.inflate(inflater, container, false)
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.fab.setOnClickListener {
-            val intent = Intent(context, BarcodeScannerActivity::class.java)
+            val intent = Intent(context, LiveBarcodeScanningActivity::class.java)
             startActivityForResult(intent, REQUEST_CODE)
         }
         viewModel.query.observe(viewLifecycleOwner, Observer {
