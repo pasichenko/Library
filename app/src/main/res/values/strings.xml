@@ -22,6 +22,10 @@
     <string name="edit_product">Edit product</string>
     <string name="add_product">Add product</string>
     <string name="data_loading">Data loading</string>
+    <string name="message_delete_product">This product will be removed!</string>
+    <string name="title_dialog_delete_product">WARNING</string>
+    <string name="active">Active</string>
+    <string name="archive">Archive</string>
 
     <string-array name="months">
         <item> January</item>

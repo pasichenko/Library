@@ -1,8 +1,8 @@
 package com.makspasich.library.ui.detail
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -38,10 +38,10 @@ class DetailProductFragment : Fragment() {
                 binding.statusTv.apply {
                     text = if (it.isActive) {
                         setBackgroundColor(resources.getColor(R.color.active))
-                        "Active"
+                        requireContext().getString(R.string.active)
                     } else {
                         setBackgroundColor(resources.getColor(R.color.archive))
-                        "Archive"
+                        requireContext().getString(R.string.archive)
                     }
                 }
             }
@@ -70,12 +70,12 @@ class DetailProductFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_delete -> {
-                AlertDialog.Builder(context)
-                        .setTitle("WARNING")
-                        .setMessage("This a counter and its values will be deleted!")
+                AlertDialog.Builder(requireContext())
+                        .setTitle(getString(R.string.title_dialog_delete_product))
+                        .setMessage(getString(R.string.message_delete_product))
                         .setIcon(R.drawable.ic_warning)
-                        .setPositiveButton("OK") { _, _ -> viewModel.deleteProduct() }
-                        .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+                        .setPositiveButton(android.R.string.ok) { _, _ -> viewModel.deleteProduct() }
+                        .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
                         .create()
                         .show()
                 true

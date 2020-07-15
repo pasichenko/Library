@@ -1,12 +1,10 @@
 package com.makspasich.library.ui.addeditproduct
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.core.view.ViewCompat
@@ -20,6 +18,8 @@ import com.makspasich.library.EventObserver
 import com.makspasich.library.R
 import com.makspasich.library.databinding.AddEditProductFragmentBinding
 import com.makspasich.library.twoWayBinding
+import com.makspasich.library.ui.addname.AddNameDialog
+import com.makspasich.library.ui.addsize.AddSizeDialog
 
 
 class AddEditProductFragment : Fragment() {
@@ -120,6 +120,13 @@ class AddEditProductFragment : Fragment() {
             if (checkedId != -1) {
                 binding.chipsNames.check(checkedId)
             }
+            val chipAdd = getChipAdd(
+                    text = "Add name",
+                    root = binding.chipsNames,
+                    onClickListener = View.OnClickListener {
+                        AddNameDialog().show(childFragmentManager, "addName")
+                    })
+            binding.chipsNames.addView(chipAdd)
         })
     }
 
@@ -150,6 +157,13 @@ class AddEditProductFragment : Fragment() {
             if (checkedId != -1) {
                 binding.chipsSizes.check(checkedId)
             }
+            val chipAdd = getChipAdd(
+                    text = "Add size",
+                    root = binding.chipsSizes,
+                    onClickListener = View.OnClickListener {
+                        AddSizeDialog().show(childFragmentManager, "addSize")
+                    })
+            binding.chipsSizes.addView(chipAdd)
         })
     }
 
@@ -159,11 +173,6 @@ class AddEditProductFragment : Fragment() {
                 android.R.layout.simple_dropdown_item_1line,
                 listMonth)
         binding.monthEt.setAdapter(arrayMonthAdapter)
-        binding.monthEt.setOnClickListener {
-            binding.monthEt.requestFocus()
-            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(binding.monthEt, 0)
-        }
         viewModel.monthLiveData.observe(viewLifecycleOwner, Observer {
             for (month in listMonth) {
                 if (month == it) {
@@ -178,6 +187,14 @@ class AddEditProductFragment : Fragment() {
             binding.monthEt.setText(month, false)
         }
         initializeAutoCompleteSpinners(binding.monthEt)
+    }
+
+    private fun getChipAdd(text: String, root: ViewGroup, onClickListener: View.OnClickListener): Chip {
+        val chip = layoutInflater.inflate(R.layout.cat_chip_group_item, root, false) as Chip
+        chip.id = ViewCompat.generateViewId()
+        chip.text = text
+        chip.setOnClickListener(onClickListener)
+        return chip
     }
 
     private fun initializeAutoCompleteSpinners(autoCompleteTextView: AutoCompleteTextView) {

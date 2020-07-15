@@ -56,43 +56,39 @@ class AddEditProductViewModel : ViewModel() {
 
     private var isDataLoaded = false
     private lateinit var oldProduct: Product
-    private fun initSizes() {
-        Firebase.database.reference.child("product-sizes").addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val list: MutableList<ProductSize> = mutableListOf()
-                for (name in snapshot.children) {
-                    val productSize: ProductSize? = name.getValue<ProductSize>()
-                    productSize?.let {
-                        list.add(productSize)
-                    }
-                }
-                _sizesLiveData.value = list
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+    private val sizesListener: ValueEventListener = object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            val list: MutableList<ProductSize> = mutableListOf()
+            for (name in snapshot.children) {
+                val productSize: ProductSize? = name.getValue<ProductSize>()
+                productSize?.let {
+                    list.add(productSize)
+                }
             }
-        })
+            _sizesLiveData.value = list
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            TODO("Not yet implemented")
+        }
     }
-
-    private fun initNames() {
-        Firebase.database.reference.child("product-names").addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val list: MutableList<ProductName> = mutableListOf()
-                for (name in snapshot.children) {
-                    val productName: ProductName? = name.getValue<ProductName>()
-                    productName?.let {
-                        list.add(productName)
-                    }
+    private val namesListener: ValueEventListener = object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            val list: MutableList<ProductName> = mutableListOf()
+            for (name in snapshot.children) {
+                val productName: ProductName? = name.getValue<ProductName>()
+                productName?.let {
+                    list.add(productName)
                 }
-
-                _namesLiveData.value = list
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-        })
+            _namesLiveData.value = list
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            TODO("Not yet implemented")
+        }
     }
 
     fun start(keyProduct: String, isNewProduct: Boolean) {
@@ -164,14 +160,26 @@ class AddEditProductViewModel : ViewModel() {
 
         }
         _isSavedLiveData.value = true
-
-
         _productUpdatedEvent.value = Event(Unit)
     }
 
     init {
         initSizes()
         initNames()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Firebase.database.reference.child("product-sizes").removeEventListener(sizesListener)
+        Firebase.database.reference.child("product-names").removeEventListener(namesListener)
+    }
+
+    private fun initSizes() {
+        Firebase.database.reference.child("product-sizes").addValueEventListener(sizesListener)
+    }
+
+    private fun initNames() {
+        Firebase.database.reference.child("product-names").addValueEventListener(namesListener)
     }
 
     fun setKeyProduct(key: String?) {
