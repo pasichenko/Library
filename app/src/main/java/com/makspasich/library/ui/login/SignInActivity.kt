@@ -16,6 +16,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.*
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.makspasich.library.BaseActivity
 import com.makspasich.library.MainActivity
 import com.makspasich.library.R
@@ -137,6 +139,11 @@ class SignInActivity : BaseActivity() {
     companion object {
         private const val TAG = "GoogleActivity"
         private const val RC_SIGN_IN = 9001
+
+        init {
+            Firebase.database.setPersistenceEnabled(true)
+            Firebase.database.reference.keepSynced(true)
+        }
     }
 
 }
