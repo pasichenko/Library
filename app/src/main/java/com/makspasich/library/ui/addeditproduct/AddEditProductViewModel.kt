@@ -28,6 +28,9 @@ class AddEditProductViewModel : ViewModel() {
     private val _yearLiveData = MutableLiveData<String>()
     val yearLiveData: LiveData<String> = _yearLiveData
 
+    private val _expirationDateLiveData = MutableLiveData<String>()
+    val expirationDateLiveData: LiveData<String> = _expirationDateLiveData
+
     private val _nameLiveData = MutableLiveData<String>()
     val nameLiveData: LiveData<String> = _nameLiveData
 
@@ -134,6 +137,7 @@ class AddEditProductViewModel : ViewModel() {
         _nameLiveData.value = product.name
         _sizeLiveData.value = product.size
         _monthLiveData.value = product.month
+        _expirationDateLiveData.value = product.expirationDate
         _dataLoading.value = false
         isDataLoaded = true
     }
@@ -150,6 +154,7 @@ class AddEditProductViewModel : ViewModel() {
                 name = _nameLiveData.value,
                 size = _sizeLiveData.value,
                 month = _monthLiveData.value,
+                expirationDate = _expirationDateLiveData.value,
                 isActive = true
         )
         val productRepository = ProductRepositoryImpl()
@@ -200,5 +205,9 @@ class AddEditProductViewModel : ViewModel() {
 
     fun setMonthProduct(month: String?) {
         _monthLiveData.value = month
+    }
+
+    fun setExpirationDateProduct(expirationDate: String?) {
+        _expirationDateLiveData.value = expirationDate
     }
 }

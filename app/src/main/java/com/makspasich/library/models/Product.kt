@@ -8,6 +8,7 @@ data class Product(
         var nameObj: ProductName? = null,
         var size: String? = null,
         var month: String? = null,
+        var expirationDate: String? = null,
         var isActive: Boolean = true
 ) {
 }

@@ -35,6 +35,9 @@ class DetailProductFragment : Fragment() {
                 binding.nameTv.text = it.name
                 binding.sizeTv.text = it.size
                 binding.monthTv.text = it.month
+                it.expirationDate.let { date ->
+                    binding.expirationDateTv.text = date
+                }
                 binding.statusTv.apply {
                     text = if (it.isActive) {
                         setBackgroundColor(resources.getColor(R.color.active))

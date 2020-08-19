@@ -58,6 +58,7 @@ class AddEditProductFragment : Fragment() {
     private fun setupFieldsLiveData() {
         binding.keyEt.twoWayBinding(requireParentFragment(), viewModel.keyLiveData, { viewModel.setKeyProduct(it) })
         binding.yearEt.twoWayBinding(requireParentFragment(), viewModel.yearLiveData, { viewModel.setYearProduct(it) })
+        binding.expirationDateEt.twoWayBinding(requireParentFragment(), viewModel.expirationDateLiveData, { viewModel.setExpirationDateProduct(it) })
     }
 
     private fun setupNavigation() {
