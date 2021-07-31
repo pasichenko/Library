@@ -13,6 +13,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.makspasich.library.Event
+import com.makspasich.library.models.Index
 import com.makspasich.library.models.Product
 import com.makspasich.library.source.ProductRepositoryImpl
 import kotlinx.coroutines.launch

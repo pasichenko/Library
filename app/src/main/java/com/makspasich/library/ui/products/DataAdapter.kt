@@ -15,7 +15,7 @@ import com.makspasich.library.models.Product
 import java.util.*
 
 class DataAdapter(private val query: Query) : RecyclerView.Adapter<DataViewHolder>() {
-    private var context: Context? = null
+    private lateinit var context: Context
     private val childEventListener: ChildEventListener?
     private val productIds: MutableList<String?> = ArrayList()
     private val products: MutableList<Product?> = ArrayList()

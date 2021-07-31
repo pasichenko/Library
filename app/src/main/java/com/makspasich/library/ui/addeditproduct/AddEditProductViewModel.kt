@@ -127,6 +127,28 @@ class AddEditProductViewModel : ViewModel() {
                             }
                         })
             }
+        } else{
+            Firebase.database.reference.child("last-inserted")
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.exists()) {
+                            val product = snapshot.getValue<Product>()
+                            product?.key = keyProduct
+                            _keyLiveData.value = product?.key
+                            _yearLiveData.value = product?.year
+                            _nameLiveData.value = product?.name
+                            _sizeLiveData.value = product?.size
+                            _monthLiveData.value = product?.month
+                            _expirationDateLiveData.value = product?.expirationDate
+                            _dataLoading.value = false
+                            isDataLoaded = true
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+                })
         }
     }
 
@@ -157,6 +179,7 @@ class AddEditProductViewModel : ViewModel() {
                 expirationDate = _expirationDateLiveData.value,
                 isActive = true
         )
+        Firebase.database.reference.child("last-inserted").setValue(product)
         val productRepository = ProductRepositoryImpl()
         if (isNewProduct) {
             productRepository.addProduct(_keyLiveData.value!!, product)

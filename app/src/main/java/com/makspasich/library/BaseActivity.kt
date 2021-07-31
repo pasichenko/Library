@@ -9,21 +9,17 @@ import androidx.appcompat.app.AppCompatActivity
 
 open class BaseActivity : AppCompatActivity() {
     @VisibleForTesting
-    var mProgressBar: ProgressBar? = null
+   lateinit var mProgressBar: ProgressBar
     fun setProgressBar(resId: Int) {
         mProgressBar = findViewById(resId)
     }
 
     fun showProgressBar() {
-        mProgressBar?.let {
-            it.visibility = View.VISIBLE
-        }
+        mProgressBar.visibility = View.VISIBLE
     }
 
     fun hideProgressBar() {
-        mProgressBar?.let {
-            it.visibility = View.INVISIBLE
-        }
+        mProgressBar.visibility = View.INVISIBLE
     }
 
     fun hideKeyboard(view: View) {

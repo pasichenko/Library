@@ -5,12 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class StatisticsViewModel : ViewModel() {
-    private val mText: MutableLiveData<String>
+    private val mText: MutableLiveData<String> = MutableLiveData()
     val text: LiveData<String>
         get() = mText
 
     init {
-        mText = MutableLiveData()
         mText.value = "This is gallery fragment"
     }
 }
