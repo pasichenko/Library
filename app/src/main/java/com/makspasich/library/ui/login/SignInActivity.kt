@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.makspasich.library.BaseActivity
 import com.makspasich.library.MainActivity
@@ -38,9 +39,9 @@ class SignInActivity : BaseActivity() {
 
         // Configure Google Sign In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build()
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 
@@ -75,19 +76,23 @@ class SignInActivity : BaseActivity() {
         binding.signInGoogleAccount.isEnabled = false
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this) { task: Task<AuthResult?> ->
-                    if (task.isSuccessful) {
-                        Log.d(TAG, "signInWithCredential:success")
-                        val user = mAuth.currentUser
-                        onAuthSuccess(user)
-                    } else {
-                        Log.w(TAG, "signInWithCredential:failure", task.exception)
-                        Snackbar.make(findViewById(R.id.main_layout), "Authentication Failed.", Snackbar.LENGTH_SHORT).show()
-                        FirebaseAuth.getInstance().signOut()
-                    }
-                    hideProgressBar()
-                    binding.signInGoogleAccount.isEnabled = true
+            .addOnCompleteListener(this) { task: Task<AuthResult?> ->
+                if (task.isSuccessful) {
+                    Log.d(TAG, "signInWithCredential:success")
+                    val user = mAuth.currentUser
+                    onAuthSuccess(user)
+                } else {
+                    Log.w(TAG, "signInWithCredential:failure", task.exception)
+                    Snackbar.make(
+                        findViewById(R.id.main_layout),
+                        "Authentication Failed.",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    FirebaseAuth.getInstance().signOut()
                 }
+                hideProgressBar()
+                binding.signInGoogleAccount.isEnabled = true
+            }
     }
 
     private fun signIn() {
@@ -98,21 +103,23 @@ class SignInActivity : BaseActivity() {
     private fun onAuthSuccess(user: FirebaseUser?) {
         showProgressBar()
         binding.signInGoogleAccount.isEnabled = false
-        mRootReference.child("granted").addListenerForSingleValueEvent(object : ValueEventListener {
+        mRootReference.child("users").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                var isFound = false
-                for (variableSnapshot in dataSnapshot.children) {
-                    if (variableSnapshot.key == user!!.uid) {
-                        isFound = true
-                    }
+                val username = usernameFromEmail(user!!.email)
+                var userDB = User(user.uid, username, user.email!!, false)
+                if (!dataSnapshot.hasChild(userDB.uid)) {
+                    dataSnapshot.child(userDB.uid).ref.setValue(userDB)
+                } else {
+                    val value = dataSnapshot.child(userDB.uid).getValue<User>()
+                    userDB = value ?: userDB
                 }
-                if (isFound) {
-                    val username = usernameFromEmail(user!!.email)
-                    writeNewUser(user.uid, username, user.email)
+
+                if (userDB.granted) {
                     val intent = Intent(this@SignInActivity, MainActivity::class.java)
                     startActivity(intent)
                     finish()
                 } else {
+                    mRootReference.child("users").child(userDB.uid).setValue(userDB)
                     Toast.makeText(this@SignInActivity, "AccessDenied", Toast.LENGTH_SHORT).show()
                 }
                 hideProgressBar()
@@ -123,12 +130,7 @@ class SignInActivity : BaseActivity() {
         })
     }
 
-    private fun writeNewUser(userId: String, name: String?, email: String?) {
-        val user = User(userId, name, email)
-        mRootReference.child("users").child(userId).setValue(user)
-    }
-
-    private fun usernameFromEmail(email: String?): String? {
+    private fun usernameFromEmail(email: String?): String {
         return if (email!!.contains("@")) {
             email.split("@".toRegex()).toTypedArray()[0]
         } else {
