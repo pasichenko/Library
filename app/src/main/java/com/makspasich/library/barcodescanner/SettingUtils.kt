@@ -75,13 +75,6 @@ object SettingUtils {
     fun shouldDelayLoadingBarcodeResult(): Boolean = DELAY_LOADING_BARCODE_RESULT
 
     fun getUserSpecifiedPreviewSize(): CameraSizePair? {
-        return try {
-            CameraSizePair(
-                    Size.parseSize(PREVIEW_SIZE),
-                    Size.parseSize(PICTURE_SIZE)
-            )
-        } catch (e: Exception) {
-            null
-        }
+        return null
     }
 }
