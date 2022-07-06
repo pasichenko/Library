@@ -10,9 +10,12 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
+import com.makspasich.library.models.State
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 import kotlin.math.absoluteValue
 
 /**
@@ -65,10 +68,10 @@ fun View.showSnackbar(
  * Overload extension for using string resources
  */
 fun View.showSnackbar(
-        snackbarText: Int,
-        timeLength: Int,
-        textAction: String? = null,
-        listener: View.OnClickListener? = null
+    snackbarText: Int,
+    timeLength: Int,
+    textAction: String? = null,
+    listener: View.OnClickListener? = null
 ) {
     showSnackbar(context.getString(snackbarText), timeLength, textAction, listener)
 }
@@ -85,4 +88,14 @@ fun Long.formatDate(format: String): String? {
     calendar.timeInMillis = this.absoluteValue
     sdf.timeZone = TimeZone.getDefault()
     return sdf.format(calendar.time)
+}
+
+fun State.toText(): String {
+    return when (this) {
+        State.CREATED -> "CREATED"
+        State.UNDERGROUND -> "UNDERGROUND"
+        State.FOREGROUND -> "FOREGROUND"
+        State.UNDEFINED -> "UNDEFINED"
+        State.DELETED -> "DELETED"
+    }
 }

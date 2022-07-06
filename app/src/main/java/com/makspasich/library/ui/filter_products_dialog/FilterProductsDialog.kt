@@ -11,7 +11,10 @@ import com.makspasich.library.databinding.FilterProductsFragmentBinding
 import com.makspasich.library.models.TagName
 
 
-class FilterProductsDialog(private val filterListener: FilterListener) : DialogFragment() {
+class FilterProductsDialog(
+    private val filterListener: FilterListener,
+    private val selectedTags: List<TagName>
+) : DialogFragment() {
 
     private lateinit var binding: FilterProductsFragmentBinding
     private val viewModel: FilterProductsViewModel by viewModels()
@@ -27,10 +30,12 @@ class FilterProductsDialog(private val filterListener: FilterListener) : DialogF
         val builder = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Filtering")
             .setView(binding.root)
-            .setPositiveButton("Save") { _: DialogInterface?, _: Int -> onSearchClicked() }
-            .setNegativeButton("Cancel") { _: DialogInterface?, _: Int -> onCancelClicked() }
-            .setNeutralButton("Clear") { _: DialogInterface?, _: Int -> onClearClicked() }
-
+            .setPositiveButton("Применить") { _: DialogInterface?, _: Int -> onSearchClicked() }
+            .setNegativeButton("Отменить") { _: DialogInterface?, _: Int -> onCancelClicked() }
+            .setNeutralButton("Сбросить") { _: DialogInterface?, _: Int -> onClearClicked() }
+        for (tag in selectedTags) {
+            viewModel.addTagProduct(tag)
+        }
         viewModel.allTagsLiveData.observe(this) { tags ->
             binding.chipGroup.removeAllViews()
             for (tag in tags) {

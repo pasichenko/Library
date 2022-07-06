@@ -77,6 +77,7 @@
             tools:text="TextView" />
 
         <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/status_container_btn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
@@ -85,51 +86,6 @@
             app:singleSelection="true"
             app:selectionRequired="true"
             android:orientation="vertical">
-
-            <com.google.android.material.button.MaterialButton
-                style="?attr/materialButtonOutlinedStyle"
-                android:id="@+id/status_created_btn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:insetBottom="0dp"
-                android:insetTop="0dp"
-                android:text="CREATED" />
-
-            <com.google.android.material.button.MaterialButton
-                style="?attr/materialButtonOutlinedStyle"
-                android:id="@+id/status_underground_btn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:insetBottom="0dp"
-                android:insetTop="0dp"
-                android:text="UNDERGROUND" />
-
-            <com.google.android.material.button.MaterialButton
-                style="?attr/materialButtonOutlinedStyle"
-                android:id="@+id/status_foreground_btn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:insetBottom="0dp"
-                android:insetTop="0dp"
-                android:text="FOREGROUND" />
-
-            <com.google.android.material.button.MaterialButton
-                style="?attr/materialButtonOutlinedStyle"
-                android:id="@+id/status_undefined_btn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:insetBottom="0dp"
-                android:insetTop="0dp"
-                android:text="UNDEFINED" />
-
-            <com.google.android.material.button.MaterialButton
-                style="?attr/materialButtonOutlinedStyle"
-                android:id="@+id/status_deleted_btn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:insetBottom="0dp"
-                android:insetTop="0dp"
-                android:text="DELETED" />
         </com.google.android.material.button.MaterialButtonToggleGroup>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

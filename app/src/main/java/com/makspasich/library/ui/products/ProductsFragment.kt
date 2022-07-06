@@ -20,6 +20,7 @@ import com.makspasich.library.databinding.TextViewYearBinding
 import com.makspasich.library.models.Product
 import com.makspasich.library.models.State
 import com.makspasich.library.models.TagName
+import com.makspasich.library.toText
 import com.makspasich.library.ui.filter_products_dialog.FilterProductsDialog
 import kotlinx.android.synthetic.main.fragment_products.view.*
 import kotlinx.android.synthetic.main.text_view_state.view.*
@@ -80,7 +81,7 @@ class ProductsFragment : Fragment(), FilterProductsDialog.FilterListener {
                 binding.supportingPanelMainContent.list_container.addView(textViewYearBinding.root)
                 yearEntry.value.entries.sortedByDescending { it.key }.forEach { stateEntry ->
                     val textViewStateBinding = TextViewStateBinding.inflate(inflate)
-                    textViewStateBinding.root.state_tv.text = stateEntry.key.toString()
+                    textViewStateBinding.root.state_tv.text = stateEntry.key.toText()
                     textViewStateBinding.root.count_state_tv.text = stateEntry.value.toString()
                     binding.supportingPanelMainContent.list_container.addView(textViewStateBinding.root)
                 }
@@ -106,7 +107,7 @@ class ProductsFragment : Fragment(), FilterProductsDialog.FilterListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
             R.id.menu_filter -> {
-                FilterProductsDialog(this@ProductsFragment).show(
+                FilterProductsDialog(this@ProductsFragment, viewModel.filters).show(
                     childFragmentManager,
                     "FilterProductsDialog"
                 )

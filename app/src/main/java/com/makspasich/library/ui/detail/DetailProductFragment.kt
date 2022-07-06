@@ -10,8 +10,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.makspasich.library.EventObserver
 import com.makspasich.library.R
 import com.makspasich.library.databinding.DetailProductFragmentBinding
+import com.makspasich.library.databinding.StateButtonBinding
 import com.makspasich.library.formatDate
 import com.makspasich.library.models.State
+import com.makspasich.library.toText
 
 class DetailProductFragment : Fragment() {
 
@@ -45,22 +47,22 @@ class DetailProductFragment : Fragment() {
                         it.expirationTimestamp?.formatDate("yyyy-MM-dd")
                     )
 //                binding.statusTv.text = String.format("Status: %s", it.state)
-                when (it.state) {
-                    State.CREATED -> binding.statusCreatedBtn.isChecked = true
-                    State.UNDERGROUND -> binding.statusUndergroundBtn.isChecked = true
-                    State.FOREGROUND -> binding.statusForegroundBtn.isChecked = true
-                    else -> binding.statusUndefinedBtn.isChecked = true
-                }
             }
         }
         binding.editFab.setOnClickListener {
             viewModel.editTask()
         }
-        binding.statusCreatedBtn.setOnClickListener { viewModel.updateState(State.CREATED) }
-        binding.statusUndergroundBtn.setOnClickListener { viewModel.updateState(State.UNDERGROUND) }
-        binding.statusForegroundBtn.setOnClickListener { viewModel.updateState(State.FOREGROUND) }
-        binding.statusUndefinedBtn.setOnClickListener { viewModel.updateState(State.UNDEFINED) }
-        binding.statusDeletedBtn.setOnClickListener { viewModel.updateState(State.DELETED) }
+        for (state in State.values()) {
+            val stateBinding = StateButtonBinding.inflate(layoutInflater)
+            stateBinding.root.text = state.toText()
+            stateBinding.root.setOnClickListener { viewModel.updateState(state) }
+            viewModel.product.observe(viewLifecycleOwner) {
+                if (it.state == state) {
+                    stateBinding.root.isChecked = true
+                }
+            }
+            binding.statusContainerBtn.addView(stateBinding.root)
+        }
         setupNavigation()
     }
 
