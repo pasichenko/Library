@@ -2,15 +2,16 @@ package com.makspasich.library.ui.detail
 
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.makspasich.library.EventObserver
 import com.makspasich.library.R
 import com.makspasich.library.databinding.DetailProductFragmentBinding
+import com.makspasich.library.formatDate
+import com.makspasich.library.models.State
 
 class DetailProductFragment : Fragment() {
 
@@ -18,8 +19,10 @@ class DetailProductFragment : Fragment() {
     private val viewModel: DetailProductViewModel by viewModels()
     private val args: DetailProductFragmentArgs by navArgs()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = DetailProductFragmentBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
         return binding.root
@@ -28,30 +31,36 @@ class DetailProductFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.start(args.keyProduct)
-        viewModel.product.observe(viewLifecycleOwner, Observer {
+        viewModel.product.observe(viewLifecycleOwner) {
             it?.let {
-                binding.keyTv.text = it.key
-                binding.uidTv.text = it.uid
-                binding.nameTv.text = it.name
-                binding.sizeTv.text = it.size
-                binding.monthTv.text = it.month
-                it.expirationDate.let { date ->
-                    binding.expirationDateTv.text = date
-                }
-                binding.statusTv.apply {
-                    text = if (it.isActive) {
-                        setBackgroundColor(resources.getColor(R.color.active))
-                        requireContext().getString(R.string.active)
-                    } else {
-                        setBackgroundColor(resources.getColor(R.color.archive))
-                        requireContext().getString(R.string.archive)
-                    }
+                binding.keyTv.text = String.format("Key: %s", it.key)
+                binding.uidTv.text = String.format("UID: %s", it.uid)
+                binding.nameTv.text = String.format("Name: %s", it.name)
+                binding.sizeTv.text = String.format("Size: %s", it.size.toString())
+                binding.timestampTv.text =
+                    String.format("Timestamp: %s", it.timestamp?.formatDate("yyyy-MM-dd"))
+                binding.expirationTimestampTv.text =
+                    String.format(
+                        "Expired at: %s",
+                        it.expirationTimestamp?.formatDate("yyyy-MM-dd")
+                    )
+//                binding.statusTv.text = String.format("Status: %s", it.state)
+                when (it.state) {
+                    State.CREATED -> binding.statusCreatedBtn.isChecked = true
+                    State.UNDERGROUND -> binding.statusUndergroundBtn.isChecked = true
+                    State.FOREGROUND -> binding.statusForegroundBtn.isChecked = true
+                    else -> binding.statusUndefinedBtn.isChecked = true
                 }
             }
-        })
+        }
         binding.editFab.setOnClickListener {
             viewModel.editTask()
         }
+        binding.statusCreatedBtn.setOnClickListener { viewModel.updateState(State.CREATED) }
+        binding.statusUndergroundBtn.setOnClickListener { viewModel.updateState(State.UNDERGROUND) }
+        binding.statusForegroundBtn.setOnClickListener { viewModel.updateState(State.FOREGROUND) }
+        binding.statusUndefinedBtn.setOnClickListener { viewModel.updateState(State.UNDEFINED) }
+        binding.statusDeletedBtn.setOnClickListener { viewModel.updateState(State.DELETED) }
         setupNavigation()
     }
 
@@ -62,10 +71,11 @@ class DetailProductFragment : Fragment() {
         })
         viewModel.editTaskEvent.observe(viewLifecycleOwner, EventObserver {
             val action = DetailProductFragmentDirections
-                    .actionDetailProductFragmentToAddEditProductFragment(
-                            keyProduct = args.keyProduct,
-                            isNewProduct = false,
-                            title = getString(R.string.edit_product))
+                .actionDetailProductFragmentToAddEditProductFragment(
+                    args.keyProduct,
+                    false,
+                    getString(R.string.edit_product)
+                )
             findNavController().navigate(action)
         })
     }
@@ -73,18 +83,13 @@ class DetailProductFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_delete -> {
-                AlertDialog.Builder(requireContext())
-                        .setTitle(getString(R.string.title_dialog_delete_product))
-                        .setMessage(getString(R.string.message_delete_product))
-                        .setIcon(R.drawable.ic_warning)
-                        .setPositiveButton(android.R.string.ok) { _, _ -> viewModel.deleteProduct() }
-                        .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
-                        .create()
-                        .show()
-                true
-            }
-            R.id.menu_archive -> {
-                viewModel.archiveProduct()
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(getString(R.string.title_dialog_delete_product))
+                    .setMessage(getString(R.string.message_delete_product))
+                    .setIcon(R.drawable.ic_warning)
+                    .setPositiveButton(android.R.string.ok) { _, _ -> viewModel.deleteProduct() }
+                    .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
+                    .show()
                 true
             }
             else -> false

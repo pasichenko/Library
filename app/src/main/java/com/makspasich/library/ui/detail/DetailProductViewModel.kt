@@ -5,17 +5,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.makspasich.library.Event
-import com.makspasich.library.models.Index
 import com.makspasich.library.models.Product
-import com.makspasich.library.source.ProductRepositoryImpl
+import com.makspasich.library.models.State
 import kotlinx.coroutines.launch
 
 class DetailProductViewModel : ViewModel() {
@@ -53,26 +50,19 @@ class DetailProductViewModel : ViewModel() {
         }
 
 
-        this.productId?.let {
-//            viewModelScope.launch {
-                rootReference.child("active")
-                        .child(it)
-                        .addValueEventListener(object : ValueEventListener {
-                            override fun onDataChange(rootSnapshot: DataSnapshot) {
-                                if (rootSnapshot.exists()) {
-                                    val product = rootSnapshot.getValue<Product>()
-                                    onProductLoaded(product!!)
-                                } else {
-                                    onDataNotAvailable()
-                                }
-                            }
-
-                            override fun onCancelled(p0: DatabaseError) {
-                                onDataNotAvailable()
-                                TODO("Not yet implemented")
-                            }
-                        })
-//            }
+        this.productId.let {
+            //            viewModelScope.launch {
+            Firebase.firestore.collection("products")
+                .document(it)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val product = document.toObject<Product>()
+                        onProductLoaded(product!!)
+                    } else {
+                        onDataNotAvailable()
+                    }
+                }
         }
     }
 
@@ -92,19 +82,15 @@ class DetailProductViewModel : ViewModel() {
 
     fun deleteProduct() = viewModelScope.launch {
         this@DetailProductViewModel._product.value?.let {
-            val productRepository = ProductRepositoryImpl()
-            productRepository.deleteProduct(it)
+            Firebase.firestore.collection("products").document(it.key!!).delete()
             _deleteTaskEvent.value = Event(Unit)
         }
     }
 
-    fun archiveProduct() {
-        val productRepository = ProductRepositoryImpl()
-        if (_product.value!!.isActive) {
-            productRepository.moveToArchive(_product.value!!)
-        } else {
-            productRepository.moveToActive(_product.value!!)
-        }
+    fun updateState(state: State) {
+        Firebase.firestore.collection("products")
+            .document(_product.value!!.key!!)
+            .update("state", state)
     }
 
     private fun showSnackbarMessage(@StringRes message: Int) {

@@ -5,31 +5,29 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.makspasich.library.Event
 import com.makspasich.library.models.Product
-import com.makspasich.library.models.ProductName
-import com.makspasich.library.models.ProductSize
-import com.makspasich.library.source.ProductRepositoryImpl
+import com.makspasich.library.models.State
+import com.makspasich.library.models.TagName
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 
 class AddEditProductViewModel : ViewModel() {
+
+    val uid: String = Firebase.auth.currentUser!!.uid
 
     private val _keyLiveData = MutableLiveData<String>()
     val keyLiveData: LiveData<String> = _keyLiveData
 
-    val uid: String = Firebase.auth.currentUser!!.uid
+    private val _timestampLiveData = MutableLiveData<Long>()
+    val timestampLiveData: LiveData<Long> = _timestampLiveData
 
-    private val _yearLiveData = MutableLiveData<String>()
-    val yearLiveData: LiveData<String> = _yearLiveData
-
-    private val _expirationDateLiveData = MutableLiveData<String>()
-    val expirationDateLiveData: LiveData<String> = _expirationDateLiveData
+    private val _expirationTimestampLiveData = MutableLiveData<Long>()
+    val expirationTimestampLiveData: LiveData<Long> = _expirationTimestampLiveData
 
     private val _nameLiveData = MutableLiveData<String>()
     val nameLiveData: LiveData<String> = _nameLiveData
@@ -37,20 +35,19 @@ class AddEditProductViewModel : ViewModel() {
     private val _sizeLiveData = MutableLiveData<String>()
     val sizeLiveData: LiveData<String> = _sizeLiveData
 
-    private val _monthLiveData = MutableLiveData<String>()
-    val monthLiveData: LiveData<String> = _monthLiveData
+    private val _stateLiveData = MutableLiveData<State>()
+    val stateLiveData: LiveData<State> = _stateLiveData
 
     private val _dataLoading = MutableLiveData<Boolean>()
     val dataLoading: LiveData<Boolean> = _dataLoading
 
-    private val _sizesLiveData = MutableLiveData<List<ProductSize>>()
-    val sizesLiveData: LiveData<List<ProductSize>> = _sizesLiveData
-
-    private val _namesLiveData = MutableLiveData<List<ProductName>>()
-    val namesLiveData: LiveData<List<ProductName>> = _namesLiveData
-
     private val _productUpdatedEvent = MutableLiveData<Event<Unit>>()
     val productUpdatedEvent: LiveData<Event<Unit>> = _productUpdatedEvent
+
+    private val _allTagsLiveData = MutableLiveData<MutableList<TagName>>()
+    val allTagsLiveData: LiveData<MutableList<TagName>> = _allTagsLiveData
+    private val _productTagsLiveData = MutableLiveData<MutableList<TagName>>()
+    val productTagsLiveData: LiveData<MutableList<TagName>> = _productTagsLiveData
 
     private val _isSavedLiveData = MutableLiveData<Boolean>()
     val isSavedLiveData: LiveData<Boolean> = _isSavedLiveData
@@ -58,41 +55,6 @@ class AddEditProductViewModel : ViewModel() {
     private var isNewProduct: Boolean = false
 
     private var isDataLoaded = false
-    private lateinit var oldProduct: Product
-
-    private val sizesListener: ValueEventListener = object : ValueEventListener {
-        override fun onDataChange(snapshot: DataSnapshot) {
-            val list: MutableList<ProductSize> = mutableListOf()
-            for (name in snapshot.children) {
-                val productSize: ProductSize? = name.getValue<ProductSize>()
-                productSize?.let {
-                    list.add(productSize)
-                }
-            }
-            _sizesLiveData.value = list
-        }
-
-        override fun onCancelled(error: DatabaseError) {
-            TODO("Not yet implemented")
-        }
-    }
-    private val namesListener: ValueEventListener = object : ValueEventListener {
-        override fun onDataChange(snapshot: DataSnapshot) {
-            val list: MutableList<ProductName> = mutableListOf()
-            for (name in snapshot.children) {
-                val productName: ProductName? = name.getValue<ProductName>()
-                productName?.let {
-                    list.add(productName)
-                }
-            }
-
-            _namesLiveData.value = list
-        }
-
-        override fun onCancelled(error: DatabaseError) {
-            TODO("Not yet implemented")
-        }
-    }
 
     fun start(keyProduct: String, isNewProduct: Boolean) {
         if (_dataLoading.value == true) {
@@ -110,58 +72,47 @@ class AddEditProductViewModel : ViewModel() {
         _dataLoading.value = true
         if (!isNewProduct) {
             viewModelScope.launch {
-                Firebase.database.reference.child("active")
-                        .child(keyProduct)
-                        .addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(rootSnapshot: DataSnapshot) {
-                                if (rootSnapshot.exists()) {
-                                    val product = rootSnapshot.getValue<Product>()
-                                    onPostLoaded(product!!)
-                                } else {
-                                    onDataNotAvailable()
-                                }
-                            }
-
-                            override fun onCancelled(p0: DatabaseError) {
-                                TODO("Not yet implemented")
-                            }
-                        })
-            }
-        } else{
-            Firebase.database.reference.child("last-inserted")
-                .addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        if (snapshot.exists()) {
-                            val product = snapshot.getValue<Product>()
-                            product?.key = keyProduct
-                            _keyLiveData.value = product?.key
-                            _yearLiveData.value = product?.year
-                            _nameLiveData.value = product?.name
-                            _sizeLiveData.value = product?.size
-                            _monthLiveData.value = product?.month
-                            _expirationDateLiveData.value = product?.expirationDate
-                            _dataLoading.value = false
-                            isDataLoaded = true
+                Firebase.firestore.collection("products")
+                    .document(keyProduct)
+                    .get()
+                    .addOnSuccessListener { documents ->
+                        if (documents.exists()) {
+                            val product = documents.toObject<Product>()
+                            initLiveDataByProduct(product, keyProduct)
                         }
                     }
-
-                    override fun onCancelled(error: DatabaseError) {
-                        TODO("Not yet implemented")
+            }
+        } else {
+            setStateProduct(State.CREATED)
+            Firebase.firestore.collection("last-inserted")
+                .document(Firebase.auth.uid!!)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (documents.exists()) {
+                        val product = documents.toObject<Product>()
+                        initLiveDataByProduct(product, keyProduct)
                     }
-                })
+                }
         }
     }
 
-    private fun onPostLoaded(product: Product) {
-        oldProduct = product
-        _keyLiveData.value = product.key
-        _yearLiveData.value = product.year
-        _nameLiveData.value = product.name
-        _sizeLiveData.value = product.size
-        _monthLiveData.value = product.month
-        _expirationDateLiveData.value = product.expirationDate
-        _dataLoading.value = false
-        isDataLoaded = true
+    private fun initLiveDataByProduct(product: Product?, keyProduct: String) {
+        product?.let {
+            _keyLiveData.value = keyProduct
+            _timestampLiveData.value = it.timestamp ?: 0
+            _expirationTimestampLiveData.value = it.expirationTimestamp ?: 0
+            _nameLiveData.value = it.name ?: ""
+            _sizeLiveData.value = it.size.toString() ?: BigDecimal("0.0").toString()
+            _stateLiveData.value = it.state ?: State.CREATED
+            val map = it.tags
+            _productTagsLiveData.value = map.entries
+//                .filter { mutableEntry -> mutableEntry.value }
+                .map { entry -> entry.value }
+                .toMutableList()
+            _dataLoading.value = false
+            isDataLoaded = true
+        }
+
     }
 
     private fun onDataNotAvailable() {
@@ -169,68 +120,105 @@ class AddEditProductViewModel : ViewModel() {
     }
 
     fun saveProduct() {
-        val product = Product(
-                key = _keyLiveData.value,
-                uid = uid,
-                year = _yearLiveData.value,
-                name = _nameLiveData.value,
-                size = _sizeLiveData.value,
-                month = _monthLiveData.value,
-                expirationDate = _expirationDateLiveData.value,
-                isActive = true
-        )
-        Firebase.database.reference.child("last-inserted").setValue(product)
-        val productRepository = ProductRepositoryImpl()
-        if (isNewProduct) {
-            productRepository.addProduct(_keyLiveData.value!!, product)
-        } else {
-            productRepository.updateProduct(_keyLiveData.value!!, oldProduct = oldProduct, newProduct = product)
-
+        val tags:MutableMap<String,TagName> = HashMap()
+        for (tag in _productTagsLiveData.value!!.iterator()) {
+            tags[tag.key] = tag
         }
+        val product = Product(
+            key = _keyLiveData.value,
+            uid = uid,
+            name = _nameLiveData.value,
+            timestamp = _timestampLiveData.value,
+            expirationTimestamp = _expirationTimestampLiveData.value,
+            size = _sizeLiveData.value,
+            state = _stateLiveData.value?:State.CREATED,
+            tags = tags
+        )
+        Firebase.firestore.collection("last-inserted").document(Firebase.auth.uid!!).set(product)
+
+        Firebase.firestore.collection("products").document(_keyLiveData.value!!).set(product)
         _isSavedLiveData.value = true
         _productUpdatedEvent.value = Event(Unit)
     }
 
     init {
-        initSizes()
-        initNames()
+        _allTagsLiveData.value = ArrayList()
+        _productTagsLiveData.value = ArrayList()
+        Firebase.firestore.collection("tags")
+            .addSnapshotListener { documents, error ->
+                if (error != null) {
+                    return@addSnapshotListener
+                }
+
+                if (documents == null) {
+                    return@addSnapshotListener
+                }
+                for (change in documents.documentChanges) {
+                    when (change.type) {
+                        DocumentChange.Type.ADDED -> {
+                            _allTagsLiveData.value?.add(change.newIndex, change.document.toObject())
+                        }
+                        DocumentChange.Type.MODIFIED -> {
+                            if (change.oldIndex == change.newIndex) {
+                                // Item changed but remained in same position
+                                _allTagsLiveData.value?.set(
+                                    change.oldIndex,
+                                    change.document.toObject()
+                                )
+                            } else {
+                                // Item changed and changed position
+                                _allTagsLiveData.value?.removeAt(change.oldIndex)
+                                _allTagsLiveData.value?.add(
+                                    change.newIndex,
+                                    change.document.toObject()
+                                )
+                            }
+                        }
+                        DocumentChange.Type.REMOVED -> {
+                            _allTagsLiveData.value?.removeAt(change.oldIndex)
+                        }
+                    }
+                    _allTagsLiveData.value?.sortBy { it.name }
+                    _allTagsLiveData.value = _allTagsLiveData.value
+                }
+            }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        Firebase.database.reference.child("product-sizes").removeEventListener(sizesListener)
-        Firebase.database.reference.child("product-names").removeEventListener(namesListener)
-    }
-
-    private fun initSizes() {
-        Firebase.database.reference.child("product-sizes").addValueEventListener(sizesListener)
-    }
-
-    private fun initNames() {
-        Firebase.database.reference.child("product-names").addValueEventListener(namesListener)
-    }
-
-    fun setKeyProduct(key: String?) {
+    fun setKeyProduct(key: String) {
         _keyLiveData.value = key
     }
 
-    fun setYearProduct(year: String?) {
-        _yearLiveData.value = year
+    fun setTimestampProduct(timestamp: Long?) {
+        _timestampLiveData.value = timestamp ?: 0
+    }
+
+    fun setExpirationTimestampProduct(expirationTimestamp: Long?) {
+        _expirationTimestampLiveData.value = expirationTimestamp ?: 0
     }
 
     fun setNameProduct(name: String?) {
-        _nameLiveData.value = name
+        _nameLiveData.value = name ?: ""
     }
 
-    fun setSizeProduct(size: String?) {
+    fun setSizeProduct(size: BigDecimal?) {
+        _sizeLiveData.value = size?.toString().let { BigDecimal(0.0).toString() }
+    }
+
+    fun setSizeProduct(size: String) {
         _sizeLiveData.value = size
     }
 
-    fun setMonthProduct(month: String?) {
-        _monthLiveData.value = month
+    fun setStateProduct(state: State) {
+        _stateLiveData.value = state
     }
 
-    fun setExpirationDateProduct(expirationDate: String?) {
-        _expirationDateLiveData.value = expirationDate
+    fun addTagProduct(tag: TagName) {
+        _productTagsLiveData.value?.add(tag)
+        _productTagsLiveData.value = _productTagsLiveData.value
+    }
+
+    fun removeTagProduct(tag: TagName) {
+        _productTagsLiveData.value?.remove(tag)
+        _productTagsLiveData.value = _productTagsLiveData.value
     }
 }

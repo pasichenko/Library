@@ -5,6 +5,35 @@
       <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
     </configurations>
   </component>
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="app/src/main/res/layout/activity_live_barcode_kotlin.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.14010416666666667" />
+        <entry key="app/src/main/res/layout/add_edit_product_fragment.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/add_name_fragment.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/layout/add_size_fragment.xml" value="0.2545289855072464" />
+        <entry key="app/src/main/res/layout/app_bar_main.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/layout/cat_chip_group_item.xml" value="0.2916666666666667" />
+        <entry key="app/src/main/res/layout/cat_chip_group_item_assist.xml" value="0.18229166666666666" />
+        <entry key="app/src/main/res/layout/cat_chip_group_item_choice.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/layout/detail_product_fragment.xml" value="0.35625" />
+        <entry key="app/src/main/res/layout/filter_products_fragment.xml" value="0.22552083333333334" />
+        <entry key="app/src/main/res/layout/fragment_products.xml" value="0.35625" />
+        <entry key="app/src/main/res/layout/item_product.xml" value="0.7122940430925222" />
+        <entry key="app/src/main/res/layout/item_statistic.xml" value="0.35625" />
+        <entry key="app/src/main/res/layout/nav_header_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/signin_activity.xml" value="0.1828125" />
+        <entry key="app/src/main/res/layout/text_view_state.xml" value="0.2545289855072464" />
+        <entry key="app/src/main/res/layout/text_view_year.xml" value="0.21197916666666666" />
+        <entry key="app/src/main/res/layout/top_action_bar_in_live_camera.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/menu/activity_main_drawer.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/menu/filter_products.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/menu/product_detail_menu.xml" value="0.35625" />
+        <entry key="app/src/main/res/menu/products_menu.xml" value="0.18177083333333333" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>

@@ -3,7 +3,10 @@ package com.makspasich.library.ui.addname
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.makspasich.library.source.ProductRepositoryImpl
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.ktx.Firebase
+import com.makspasich.library.models.TagName
 
 class AddNameViewModel : ViewModel() {
 
@@ -11,9 +14,20 @@ class AddNameViewModel : ViewModel() {
     val nameProduct: LiveData<String> = _nameProduct
 
     fun addNameProduct() {
-        val productRepository = ProductRepositoryImpl()
-        productRepository.writeProductName(_nameProduct.value!!) {
+        val collection = Firebase.firestore.collection("tags")
 
+        collection.get().addOnSuccessListener { documents ->
+            var exist = false
+            for (tag in documents) {
+                if (tag.toObject<TagName>().name == _nameProduct.value!!) {
+                    exist = true
+                    break
+                }
+            }
+            if (!exist) {
+                val id = collection.document().id
+                collection.document(id).set(TagName(id, _nameProduct.value!!))
+            }
         }
     }
 
