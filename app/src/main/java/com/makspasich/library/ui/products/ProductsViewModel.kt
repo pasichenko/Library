@@ -3,29 +3,21 @@ package com.makspasich.library.ui.products
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.Query
-import com.makspasich.library.ui.products.ProductsFilterType.*
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.makspasich.library.models.TagName
 
 class ProductsViewModel : ViewModel() {
+    var filters: List<TagName> = ArrayList()
     private val _query: MutableLiveData<Query> = MutableLiveData()
     val query: LiveData<Query> = _query
 
-    fun setFiltering(requestType: ProductsFilterType) {
-        when (requestType) {
-            ALL_PRODUCTS -> {
-                _query.value = FirebaseDatabase.getInstance().reference.child("active")
-            }
-            SORT_BY_NAME -> {
-                _query.value = FirebaseDatabase.getInstance().reference.child("active").orderByChild("name")
-            }
-            SORT_BY_SIZE -> {
-                _query.value = FirebaseDatabase.getInstance().reference.child("active").orderByChild("size")
-            }
-        }
+    fun setQuery(query: Query) {
+        _query.value = query
     }
 
     init {
-        setFiltering(ALL_PRODUCTS)
+        setQuery(Firebase.firestore.collection("products"))
     }
 }

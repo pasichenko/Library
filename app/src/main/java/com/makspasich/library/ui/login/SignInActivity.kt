@@ -15,9 +15,11 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
+import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.firestoreSettings
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.makspasich.library.BaseActivity
 import com.makspasich.library.MainActivity
@@ -28,7 +30,8 @@ import com.makspasich.library.models.User
 class SignInActivity : BaseActivity() {
     private lateinit var binding: SigninActivityBinding
     private val mAuth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val mRootReference: DatabaseReference = FirebaseDatabase.getInstance().reference
+
+    //    private val mRootReference: DatabaseReference = FirebaseDatabase.getInstance().reference
     private var mGoogleSignInClient: GoogleSignInClient? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,10 +48,8 @@ class SignInActivity : BaseActivity() {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 
-    // [START on_start_check_user]
     public override fun onStart() {
         super.onStart()
-        // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = mAuth.currentUser
         currentUser?.let { onAuthSuccess(it) }
     }
@@ -56,15 +57,12 @@ class SignInActivity : BaseActivity() {
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
-                // Google Sign In was successful, authenticate with Firebase
                 val account = task.getResult(ApiException::class.java)
                 firebaseAuthWithGoogle(account)
             } catch (e: ApiException) {
-                // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e)
             }
         }
@@ -103,31 +101,32 @@ class SignInActivity : BaseActivity() {
     private fun onAuthSuccess(user: FirebaseUser?) {
         showProgressBar()
         binding.signInGoogleAccount.isEnabled = false
-        mRootReference.child("users").addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val username = usernameFromEmail(user!!.email)
-                var userDB = User(user.uid, username, user.email!!, false)
-                if (!dataSnapshot.hasChild(userDB.uid)) {
-                    dataSnapshot.child(userDB.uid).ref.setValue(userDB)
-                } else {
-                    val value = dataSnapshot.child(userDB.uid).getValue<User>()
-                    userDB = value ?: userDB
-                }
 
-                if (userDB.granted) {
-                    val intent = Intent(this@SignInActivity, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                } else {
-                    mRootReference.child("users").child(userDB.uid).setValue(userDB)
-                    Toast.makeText(this@SignInActivity, "AccessDenied", Toast.LENGTH_SHORT).show()
-                }
-                hideProgressBar()
-                binding.signInGoogleAccount.isEnabled = true
-            }
+        user?.let {
+            Firebase.firestore.collection("users")
+                .document(user.uid)
+                .get()
+                .addOnSuccessListener { document ->
+                    val username = usernameFromEmail(user.email)
+                    var userDB = User(user.uid, username, user.email!!, false)
+                    if (document.exists()) {
+                        userDB = document.toObject<User>() ?: userDB
+                    } else {
+                        Firebase.firestore.collection("users").document(user.uid).set(userDB)
+                    }
 
-            override fun onCancelled(databaseError: DatabaseError) {}
-        })
+                    if (userDB.granted) {
+                        val intent = Intent(this@SignInActivity, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this@SignInActivity, "AccessDenied", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    hideProgressBar()
+                    binding.signInGoogleAccount.isEnabled = true
+                }
+        }
     }
 
     private fun usernameFromEmail(email: String?): String {
@@ -145,6 +144,10 @@ class SignInActivity : BaseActivity() {
         init {
             Firebase.database.setPersistenceEnabled(true)
             Firebase.database.reference.keepSynced(true)
+            Firebase.firestore.firestoreSettings = firestoreSettings {
+                isPersistenceEnabled = true
+                cacheSizeBytes = FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED
+            }
         }
     }
 

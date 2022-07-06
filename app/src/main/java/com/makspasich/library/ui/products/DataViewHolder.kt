@@ -1,26 +1,45 @@
 package com.makspasich.library.ui.products
 
-import android.graphics.Color
+import android.view.LayoutInflater
+import androidx.core.view.ViewCompat
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.chip.Chip
+import com.makspasich.library.R
 import com.makspasich.library.databinding.ItemProductBinding
+import com.makspasich.library.formatDate
 import com.makspasich.library.models.Product
 
-class DataViewHolder(private val binding: ItemProductBinding) : RecyclerView.ViewHolder(binding.root) {
+class DataViewHolder(
+    private val binding: ItemProductBinding
+) :
+    RecyclerView.ViewHolder(binding.root) {
     fun bind(product: Product?) {
         product?.let {
             binding.nameTv.text = it.name
             binding.sizeTv.text = it.size
-            binding.yearTv.text = it.year
-            binding.dateTv.text = it.month
-            binding.idTv.text = it.key!!.split("_")[1]
+            binding.timestampTv.text = it.timestamp?.formatDate("yyyy-MM-dd")
+            binding.expirationTimestampTv.text = it.expirationTimestamp?.formatDate("yyyy-MM-dd")
+            binding.stateTv.text = it.state.toString()
+            binding.idTv.text = it.key
             itemView.setOnClickListener { view ->
                 val action = ProductsFragmentDirections.actionOpenDetailProductFragment(it.key!!)
                 Navigation.createNavigateOnClickListener(action).onClick(view)
             }
-            if (!it.isActive) {
-                binding.containerCl.setBackgroundColor(Color.parseColor("#E4E3E3"))
+            binding.tagsChipGroup.removeAllViews()
+
+            for (tag in it.tags.entries) {
+                val chip = LayoutInflater.from(binding.root.context).inflate(
+                    R.layout.cat_chip_group_item_assist,
+                    binding.tagsChipGroup,
+                    false
+                ) as Chip
+                chip.id = ViewCompat.generateViewId()
+                chip.text = tag.value.name
+                binding.tagsChipGroup.addView(chip)
             }
         }
     }
+
+
 }

@@ -1,14 +1,13 @@
 package com.makspasich.library.models
 
 data class Product(
-        var key: String? = null,
-        var uid: String? = null,
-        var name: String? = null,
-        var year: String? = null,
-        var nameObj: ProductName? = null,
-        var size: String? = null,
-        var month: String? = null,
-        var expirationDate: String? = null,
-        var isActive: Boolean = true
+    var key: String? = "",
+    var uid: String? = "",
+    var name: String? = "",
+    var timestamp: Long? = 0L,
+    var expirationTimestamp: Long? = 0L,
+    var size: String? = "0.0",
+    var state: State = State.CREATED,
+    var tags: Map<String, TagName> = hashMapOf()
 ) {
 }

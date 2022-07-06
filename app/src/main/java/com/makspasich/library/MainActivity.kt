@@ -20,7 +20,7 @@ import com.squareup.picasso.Picasso
 class MainActivity : AppCompatActivity() {
     private var mAppBarConfiguration: AppBarConfiguration? = null
     private lateinit var binding: ActivityMainBinding
-    private var navBinding: NavHeaderMainBinding? = null
+    private lateinit var navBinding: NavHeaderMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -28,31 +28,34 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.appBarMain.toolbar)
         bindViews()
-        binding.navView.menu.findItem(R.id.nav_logout).setOnMenuItemClickListener { item: MenuItem ->
-            if (item.itemId == R.id.nav_logout) {
-                FirebaseAuth.getInstance().signOut()
-                val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        binding.navView.menu.findItem(R.id.nav_logout)
+            .setOnMenuItemClickListener { item: MenuItem ->
+                if (item.itemId == R.id.nav_logout) {
+                    FirebaseAuth.getInstance().signOut()
+                    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestIdToken(getString(R.string.default_web_client_id))
                         .requestEmail()
                         .build()
-                val mGoogleSignInClient = GoogleSignIn.getClient(this@MainActivity, gso)
-                // Google sign out
-                mGoogleSignInClient.signOut().addOnCompleteListener(this@MainActivity) { task: Task<Void?>? ->
-                    val intent = Intent(this@MainActivity, SignInActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                    val mGoogleSignInClient = GoogleSignIn.getClient(this@MainActivity, gso)
+                    // Google sign out
+                    mGoogleSignInClient.signOut()
+                        .addOnCompleteListener(this@MainActivity) { task: Task<Void?>? ->
+                            val intent = Intent(this@MainActivity, SignInActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
                 }
+                binding.drawerLayout.closeDrawer(GravityCompat.START)
+                true
             }
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            true
-        }
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = AppBarConfiguration.Builder(
-                R.id.nav_active, R.id.nav_statistic)
-                .setDrawerLayout(binding.drawerLayout)
-                .build()
+            R.id.nav_active, R.id.nav_statistic
+        )
+            .setDrawerLayout(binding.drawerLayout)
+            .build()
         val navController = Navigation.findNavController(this, R.id.nav_host_fragment)
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration!!)
         NavigationUI.setupWithNavController(binding.navView, navController)
@@ -65,11 +68,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bindViews() {
-        navBinding!!.displayName.text = FirebaseAuth.getInstance().currentUser!!.displayName
-        navBinding!!.email.text = FirebaseAuth.getInstance().currentUser!!.email
+        navBinding.displayName.text = FirebaseAuth.getInstance().currentUser!!.displayName
+        navBinding.email.text = FirebaseAuth.getInstance().currentUser!!.email
         val photoUri = FirebaseAuth.getInstance().currentUser!!.photoUrl
         Picasso.get()
-                .load(photoUri)
-                .into(navBinding!!.avatarImage)
+            .load(photoUri)
+            .into(navBinding.avatarImage)
     }
 }

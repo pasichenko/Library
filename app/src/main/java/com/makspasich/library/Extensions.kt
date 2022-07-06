@@ -10,6 +10,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.math.absoluteValue
 
 /**
  * Extension function to simplify setting an afterTextChanged action to EditText components.
@@ -72,4 +76,13 @@ fun View.showSnackbar(
 fun View.hideKeyboard() {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
     imm?.hideSoftInputFromWindow(this.windowToken, 0)
+}
+
+fun Long.formatDate(format: String): String? {
+    val sdf: DateFormat = SimpleDateFormat(format, Locale.getDefault())
+    sdf.timeZone = TimeZone.getTimeZone("UTC")
+    val calendar = Calendar.getInstance()
+    calendar.timeInMillis = this.absoluteValue
+    sdf.timeZone = TimeZone.getDefault()
+    return sdf.format(calendar.time)
 }
