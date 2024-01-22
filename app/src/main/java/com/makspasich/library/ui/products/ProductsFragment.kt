@@ -3,7 +3,14 @@ package com.makspasich.library.ui.products
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -22,11 +29,9 @@ import com.makspasich.library.models.State
 import com.makspasich.library.models.TagName
 import com.makspasich.library.toText
 import com.makspasich.library.ui.filter_products_dialog.FilterProductsDialog
-import kotlinx.android.synthetic.main.fragment_products.view.*
-import kotlinx.android.synthetic.main.text_view_state.view.*
-import java.util.*
+import java.util.Calendar
 
-class ProductsFragment : Fragment(), FilterProductsDialog.FilterListener {
+class ProductsFragment : Fragment(), FilterProductsDialog.FilterListener, MenuProvider {
     private lateinit var binding: FragmentProductsBinding
     private val viewModel: ProductsViewModel by viewModels()
     private lateinit var adapter: DataAdapter
@@ -37,7 +42,6 @@ class ProductsFragment : Fragment(), FilterProductsDialog.FilterListener {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentProductsBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
         return binding.root
     }
 
@@ -46,7 +50,7 @@ class ProductsFragment : Fragment(), FilterProductsDialog.FilterListener {
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.fab.setOnClickListener {
             val intent = Intent(context, LiveBarcodeScanningActivity::class.java)
-            startActivityForResult(intent, REQUEST_CODE)
+            activityResultLauncher.launch(intent)
         }
         val productsCollection = Firebase.firestore.collection("products")
         adapter = object : DataAdapter(productsCollection) {}
@@ -72,18 +76,18 @@ class ProductsFragment : Fragment(), FilterProductsDialog.FilterListener {
                     }
                 }
             }
-            binding.supportingPanelMainContent.list_container.removeAllViews()
+            binding.listContainer.removeAllViews()
             mapYearStatesMap.entries.sortedByDescending { it.key }.forEach { yearEntry ->
                 val inflate =
-                    LayoutInflater.from(binding.supportingPanelMainContent.list_container.context)
+                    LayoutInflater.from(binding.listContainer.context)
                 val textViewYearBinding = TextViewYearBinding.inflate(inflate)
                 textViewYearBinding.root.text = yearEntry.key.toString()
-                binding.supportingPanelMainContent.list_container.addView(textViewYearBinding.root)
+                binding.listContainer.addView(textViewYearBinding.root)
                 yearEntry.value.entries.sortedByDescending { it.key }.forEach { stateEntry ->
                     val textViewStateBinding = TextViewStateBinding.inflate(inflate)
-                    textViewStateBinding.root.state_tv.text = stateEntry.key.toText()
-                    textViewStateBinding.root.count_state_tv.text = stateEntry.value.toString()
-                    binding.supportingPanelMainContent.list_container.addView(textViewStateBinding.root)
+                    textViewStateBinding.stateTv.text = stateEntry.key.toText()
+                    textViewStateBinding.countStateTv.text = stateEntry.value.toString()
+                    binding.listContainer.addView(textViewStateBinding.root)
                 }
             }
         }
@@ -99,13 +103,12 @@ class ProductsFragment : Fragment(), FilterProductsDialog.FilterListener {
         adapter.stopListening()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.products_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.products_menu, menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        when (item.itemId) {
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+        when (menuItem.itemId) {
             R.id.menu_filter -> {
                 FilterProductsDialog(this@ProductsFragment, viewModel.filters).show(
                     childFragmentManager,
@@ -113,13 +116,15 @@ class ProductsFragment : Fragment(), FilterProductsDialog.FilterListener {
                 )
                 true
             }
+
             else -> false
         }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            data?.let { intent ->
+    private val activityResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.let { intent ->
                 intent.getStringExtra("keyProduct")?.let { keyProduct ->
                     Firebase.firestore.collection("products")
                         .document(keyProduct)
@@ -157,9 +162,5 @@ class ProductsFragment : Fragment(), FilterProductsDialog.FilterListener {
         }
         viewModel.setQuery(query)
         viewModel.filters = filters
-    }
-
-    companion object {
-        const val REQUEST_CODE = 9001
     }
 }

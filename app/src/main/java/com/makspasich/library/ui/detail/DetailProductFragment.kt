@@ -1,7 +1,13 @@
 package com.makspasich.library.ui.detail
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -15,7 +21,7 @@ import com.makspasich.library.formatDate
 import com.makspasich.library.models.State
 import com.makspasich.library.toText
 
-class DetailProductFragment : Fragment() {
+class DetailProductFragment : Fragment(), MenuProvider {
 
     private lateinit var binding: DetailProductFragmentBinding
     private val viewModel: DetailProductViewModel by viewModels()
@@ -26,7 +32,6 @@ class DetailProductFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = DetailProductFragmentBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
         return binding.root
     }
 
@@ -82,8 +87,8 @@ class DetailProductFragment : Fragment() {
         })
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return when (menuItem.itemId) {
             R.id.menu_delete -> {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(getString(R.string.title_dialog_delete_product))
@@ -94,11 +99,12 @@ class DetailProductFragment : Fragment() {
                     .show()
                 true
             }
+
             else -> false
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.product_detail_menu, menu)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.product_detail_menu, menu)
     }
 }

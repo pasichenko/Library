@@ -40,6 +40,7 @@ class AddEditProductFragment : Fragment() {
         viewModel.start(args.keyProduct, args.isNewProduct)
         binding.saveFab.setOnClickListener {
             viewModel.saveProduct()
+            viewModel.updateQRState()
         }
         setupFieldsLiveData()
         setupNavigation()

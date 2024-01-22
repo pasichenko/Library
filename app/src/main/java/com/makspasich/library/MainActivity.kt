@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         mAppBarConfiguration = AppBarConfiguration.Builder(
             R.id.nav_active, R.id.nav_statistic
         )
-            .setDrawerLayout(binding.drawerLayout)
+            .setOpenableLayout(binding.drawerLayout)
             .build()
         val navController = Navigation.findNavController(this, R.id.nav_host_fragment)
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration!!)

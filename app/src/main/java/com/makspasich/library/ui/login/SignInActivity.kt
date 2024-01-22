@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -54,11 +55,11 @@ class SignInActivity : BaseActivity() {
         currentUser?.let { onAuthSuccess(it) }
     }
 
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == RC_SIGN_IN) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+    private val activityResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
                 val account = task.getResult(ApiException::class.java)
                 firebaseAuthWithGoogle(account)
@@ -95,7 +96,7 @@ class SignInActivity : BaseActivity() {
 
     private fun signIn() {
         val signInIntent = mGoogleSignInClient!!.signInIntent
-        startActivityForResult(signInIntent, RC_SIGN_IN)
+        activityResultLauncher.launch(signInIntent)
     }
 
     private fun onAuthSuccess(user: FirebaseUser?) {

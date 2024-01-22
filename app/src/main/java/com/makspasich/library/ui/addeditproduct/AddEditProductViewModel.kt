@@ -141,6 +141,14 @@ class AddEditProductViewModel : ViewModel() {
         _productUpdatedEvent.value = Event(Unit)
     }
 
+    fun updateQRState() {
+        val hashMap = HashMap<String, Any>()
+        hashMap["state"] = "USE"
+        Firebase.firestore.collection("qr-codes")
+            .document(_keyLiveData.value!!)
+            .update(hashMap)
+    }
+
     init {
         _allTagsLiveData.value = ArrayList()
         _productTagsLiveData.value = ArrayList()
