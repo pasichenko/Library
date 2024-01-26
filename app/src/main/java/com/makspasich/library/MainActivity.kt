@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
                     val mGoogleSignInClient = GoogleSignIn.getClient(this@MainActivity, gso)
                     // Google sign out
                     mGoogleSignInClient.signOut()
-                        .addOnCompleteListener(this@MainActivity) { task: Task<Void?>? ->
+                        .addOnCompleteListener(this@MainActivity) {
                             val intent = Intent(this@MainActivity, SignInActivity::class.java)
                             startActivity(intent)
                             finish()

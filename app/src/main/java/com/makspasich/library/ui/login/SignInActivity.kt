@@ -17,10 +17,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.ktx.database
-import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.firestoreSettings
-import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.firestore.persistentCacheSettings
+import com.google.firebase.firestore.toObject
 import com.google.firebase.ktx.Firebase
 import com.makspasich.library.BaseActivity
 import com.makspasich.library.MainActivity
@@ -140,14 +140,12 @@ class SignInActivity : BaseActivity() {
 
     companion object {
         private const val TAG = "GoogleActivity"
-        private const val RC_SIGN_IN = 9001
 
         init {
             Firebase.database.setPersistenceEnabled(true)
             Firebase.database.reference.keepSynced(true)
             Firebase.firestore.firestoreSettings = firestoreSettings {
-                isPersistenceEnabled = true
-                cacheSizeBytes = FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED
+                setLocalCacheSettings(persistentCacheSettings { })
             }
         }
     }

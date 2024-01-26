@@ -1,15 +1,11 @@
 package com.makspasich.library
 
-import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.google.android.material.snackbar.Snackbar
 import com.makspasich.library.models.State
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -48,37 +44,6 @@ fun EditText.twoWayBinding(
         this.setText(it)
     })
     this.afterTextChanged(setDataToViewModel)
-}
-
-/**
- * Transforms static java function Snackbar.make() to an extension function on View.
- */
-fun View.showSnackbar(
-    snackbarText: CharSequence,
-    timeLength: Int,
-    textAction: String? = null,
-    listener: View.OnClickListener? = null
-) {
-    Snackbar.make(this, snackbarText, timeLength).setAction(textAction, listener).run {
-        show()
-    }
-}
-
-/**
- * Overload extension for using string resources
- */
-fun View.showSnackbar(
-    snackbarText: Int,
-    timeLength: Int,
-    textAction: String? = null,
-    listener: View.OnClickListener? = null
-) {
-    showSnackbar(context.getString(snackbarText), timeLength, textAction, listener)
-}
-
-fun View.hideKeyboard() {
-    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-    imm?.hideSoftInputFromWindow(this.windowToken, 0)
 }
 
 fun Long.formatDate(format: String): String? {

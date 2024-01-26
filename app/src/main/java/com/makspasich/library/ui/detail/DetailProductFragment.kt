@@ -57,7 +57,7 @@ class DetailProductFragment : Fragment(), MenuProvider {
         binding.editFab.setOnClickListener {
             viewModel.editTask()
         }
-        for (state in State.values()) {
+        for (state in State.entries) {
             val stateBinding = StateButtonBinding.inflate(layoutInflater)
             stateBinding.root.text = state.toText()
             stateBinding.root.setOnClickListener { viewModel.updateState(state) }
