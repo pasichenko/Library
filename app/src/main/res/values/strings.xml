@@ -11,19 +11,11 @@
     <string name="logout">Logout</string>
     <string name="detail_product">Detail product</string>
     <string name="menu_delete_product">Delete product</string>
-    <string name="menu_archive_product">Archive product</string>
-    <string name="count_active">Count active: %1$d</string>
-    <string name="count_archive">Count archive: %1$d</string>
-    <string name="nav_all">All product</string>
-    <string name="nav_sort_by_name">Sort by name</string>
-    <string name="nav_sort_by_size">Sort by size</string>
     <string name="edit_product">Edit product</string>
     <string name="add_product">Add product</string>
     <string name="data_loading">Data loading</string>
     <string name="message_delete_product">This product will be removed!</string>
     <string name="title_dialog_delete_product">WARNING</string>
-    <string name="active">Active</string>
-    <string name="archive">Archive</string>
 
     <string name="cd_close_button">Back</string>
     <string name="cd_flash_button">Toggle camera flash</string>

@@ -3,8 +3,6 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
-    <color name="active">#139124</color>
-    <color name="archive">#911313</color>
     <color name="transparent">#00000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
