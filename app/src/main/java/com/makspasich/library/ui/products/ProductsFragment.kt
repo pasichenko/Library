@@ -1,7 +1,5 @@
 package com.makspasich.library.ui.products
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -9,18 +7,19 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.ktx.Firebase
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import com.makspasich.library.R
-import com.makspasich.library.barcodescanner.LiveBarcodeScanningActivity
 import com.makspasich.library.databinding.FragmentProductsBinding
 import com.makspasich.library.databinding.TextViewStateBinding
 import com.makspasich.library.databinding.TextViewYearBinding
@@ -30,6 +29,7 @@ import com.makspasich.library.models.TagName
 import com.makspasich.library.toText
 import com.makspasich.library.ui.filter_products_dialog.FilterProductsDialog
 import java.util.Calendar
+
 
 class ProductsFragment : Fragment(), FilterProductsDialog.FilterListener, MenuProvider {
     private lateinit var binding: FragmentProductsBinding
@@ -49,8 +49,27 @@ class ProductsFragment : Fragment(), FilterProductsDialog.FilterListener, MenuPr
         super.onViewCreated(view, savedInstanceState)
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.fab.setOnClickListener {
-            val intent = Intent(context, LiveBarcodeScanningActivity::class.java)
-            activityResultLauncher.launch(intent)
+            val optionsBuilder = GmsBarcodeScannerOptions.Builder()
+            val gmsBarcodeScanner =
+                GmsBarcodeScanning.getClient(requireContext(), optionsBuilder.build())
+            gmsBarcodeScanner
+                .startScan()
+                .addOnSuccessListener { barcode ->
+                    val regex = Regex("^\\{dd_\\d+\\}$")
+
+                    val checkNotNull = checkNotNull(barcode.rawValue)
+                    if (regex.containsMatchIn(checkNotNull)) {
+                        function(checkNotNull)
+                    } else {
+                        Snackbar.make(binding.root, "Невідомий QR", Snackbar.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+                .addOnFailureListener { e: Exception ->
+                    Snackbar.make(binding.root, "Помилка при скануванні QR", Snackbar.LENGTH_SHORT)
+                        .show()
+                }
+                .addOnCanceledListener { }
         }
         val productsCollection = Firebase.firestore.collection("products")
         adapter = object : DataAdapter(productsCollection) {}
@@ -120,38 +139,30 @@ class ProductsFragment : Fragment(), FilterProductsDialog.FilterListener, MenuPr
             else -> false
         }
 
-    private val activityResultLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.let { intent ->
-                intent.getStringExtra("keyProduct")?.let { keyProduct ->
-                    Firebase.firestore.collection("products")
-                        .document(keyProduct)
-                        .get()
-                        .addOnSuccessListener { document ->
-                            if (document.exists()) {
-                                val product = document.toObject<Product>()
-                                product?.let {
-                                    val action =
-                                        ProductsFragmentDirections.actionOpenDetailProductFragment(
-                                            keyProduct
-                                        )
-                                    findNavController().navigate(action)
-                                }
-                            } else {
-                                val action = ProductsFragmentDirections
-                                    .actionAddEditProductFragment(
-                                        keyProduct,
-                                        true,
-                                        getString(R.string.add_product)
-                                    )
-                                findNavController().navigate(action)
-                            }
-                        }
+    private fun function(keyProduct: String) {
+        Firebase.firestore.collection("products")
+            .document(keyProduct)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val product = document.toObject<Product>()
+                    product?.let {
+                        val action =
+                            ProductsFragmentDirections.actionOpenDetailProductFragment(
+                                keyProduct
+                            )
+                        findNavController().navigate(action)
+                    }
+                } else {
+                    val action = ProductsFragmentDirections
+                        .actionAddEditProductFragment(
+                            keyProduct,
+                            true,
+                            getString(R.string.add_product)
+                        )
+                    findNavController().navigate(action)
                 }
             }
-        }
     }
 
     override fun onFilter(filters: List<TagName>) {

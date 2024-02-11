@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
-
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -25,10 +20,6 @@
             android:exported="false"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".barcodescanner.LiveBarcodeScanningActivity"
-            android:exported="false"
-            android:theme="@style/NoActionBar" />
         <activity
             android:name=".ui.login.SignInActivity"
             android:exported="true">
