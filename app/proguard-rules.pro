@@ -23,6 +23,9 @@
 -dontobfuscate
 -keepattributes *Annotation*
 -keepclassmembers enum * { *; }
--keep public class com.makspasich.library.* {
+-keep public class com.makspasich.library.models.** {
    *;
 }
+
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.conscrypt.OpenSSLProvider
