@@ -1,4 +1,4 @@
-package com.makspasich.library.models
+package com.makspasich.library.model
 
 enum class State {
     CREATED,

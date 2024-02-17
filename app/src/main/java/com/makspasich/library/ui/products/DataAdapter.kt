@@ -14,7 +14,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.toObject
 import com.makspasich.library.databinding.ItemProductBinding
-import com.makspasich.library.models.Product
+import com.makspasich.library.model.Product
 
 open class DataAdapter(private var query: Query) : RecyclerView.Adapter<DataViewHolder>(),
     EventListener<QuerySnapshot> {

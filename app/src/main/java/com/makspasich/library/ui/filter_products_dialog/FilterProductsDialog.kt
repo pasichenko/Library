@@ -8,7 +8,7 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.makspasich.library.databinding.CatChipGroupItemChoiceBinding
 import com.makspasich.library.databinding.FilterProductsFragmentBinding
-import com.makspasich.library.models.TagName
+import com.makspasich.library.model.TagName
 
 
 class FilterProductsDialog(

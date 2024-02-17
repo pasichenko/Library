@@ -18,7 +18,7 @@ import com.makspasich.library.R
 import com.makspasich.library.databinding.DetailProductFragmentBinding
 import com.makspasich.library.databinding.StateButtonBinding
 import com.makspasich.library.formatDate
-import com.makspasich.library.models.State
+import com.makspasich.library.model.State
 import com.makspasich.library.toText
 
 class DetailProductFragment : Fragment(), MenuProvider {

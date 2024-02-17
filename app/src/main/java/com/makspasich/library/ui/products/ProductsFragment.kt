@@ -23,9 +23,9 @@ import com.makspasich.library.R
 import com.makspasich.library.databinding.FragmentProductsBinding
 import com.makspasich.library.databinding.TextViewStateBinding
 import com.makspasich.library.databinding.TextViewYearBinding
-import com.makspasich.library.models.Product
-import com.makspasich.library.models.State
-import com.makspasich.library.models.TagName
+import com.makspasich.library.model.Product
+import com.makspasich.library.model.State
+import com.makspasich.library.model.TagName
 import com.makspasich.library.toText
 import com.makspasich.library.ui.filter_products_dialog.FilterProductsDialog
 import java.util.Calendar

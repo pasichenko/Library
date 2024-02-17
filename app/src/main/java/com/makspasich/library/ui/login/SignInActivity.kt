@@ -26,7 +26,7 @@ import com.makspasich.library.BaseActivity
 import com.makspasich.library.MainActivity
 import com.makspasich.library.R
 import com.makspasich.library.databinding.SigninActivityBinding
-import com.makspasich.library.models.User
+import com.makspasich.library.model.User
 
 class SignInActivity : BaseActivity() {
     private lateinit var binding: SigninActivityBinding

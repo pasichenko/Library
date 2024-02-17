@@ -6,7 +6,7 @@ import android.widget.EditText
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.makspasich.library.models.State
+import com.makspasich.library.model.State
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar

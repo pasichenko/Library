@@ -23,7 +23,7 @@
 -dontobfuscate
 -keepattributes *Annotation*
 -keepclassmembers enum * { *; }
--keep public class com.makspasich.library.models.** {
+-keep public class com.makspasich.library.model.** {
    *;
 }
 

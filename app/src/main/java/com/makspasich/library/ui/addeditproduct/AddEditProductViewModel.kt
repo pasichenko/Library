@@ -10,9 +10,9 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.ktx.Firebase
 import com.makspasich.library.Event
-import com.makspasich.library.models.Product
-import com.makspasich.library.models.State
-import com.makspasich.library.models.TagName
+import com.makspasich.library.model.Product
+import com.makspasich.library.model.State
+import com.makspasich.library.model.TagName
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 

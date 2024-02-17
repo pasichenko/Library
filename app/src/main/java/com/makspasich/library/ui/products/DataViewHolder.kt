@@ -8,7 +8,7 @@ import com.google.android.material.chip.Chip
 import com.makspasich.library.R
 import com.makspasich.library.databinding.ItemProductBinding
 import com.makspasich.library.formatDate
-import com.makspasich.library.models.Product
+import com.makspasich.library.model.Product
 import com.makspasich.library.toText
 
 class DataViewHolder(

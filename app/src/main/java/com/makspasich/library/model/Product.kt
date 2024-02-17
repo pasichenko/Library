@@ -1,4 +1,4 @@
-package com.makspasich.library.models
+package com.makspasich.library.model
 
 data class Product(
     val key: String? = "",
