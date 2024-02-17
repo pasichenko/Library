@@ -1,9 +1,8 @@
 package com.makspasich.library.models
 
 data class User(
-    var uid: String = "",
-    var username: String = "",
-    var email: String = "",
-    var granted: Boolean = false
-) {
-}
+    val uid: String = "",
+    val username: String = "",
+    val email: String = "",
+    val granted: Boolean = false
+)
