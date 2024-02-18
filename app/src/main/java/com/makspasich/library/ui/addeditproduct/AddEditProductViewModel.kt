@@ -125,7 +125,7 @@ class AddEditProductViewModel : ViewModel() {
             tags[tag.key] = tag
         }
         val product = Product(
-            key = _keyLiveData.value,
+            key = _keyLiveData.value ?: "",
             uid = uid,
             name = _nameLiveData.value,
             timestamp = _timestampLiveData.value,

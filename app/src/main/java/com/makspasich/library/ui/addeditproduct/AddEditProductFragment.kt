@@ -37,7 +37,7 @@ class AddEditProductFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.start(args.keyProduct, args.isNewProduct)
+        viewModel.start(args.productId, args.isNewProduct)
         binding.saveFab.setOnClickListener {
             viewModel.saveProduct()
             viewModel.updateQRState()
@@ -106,7 +106,7 @@ class AddEditProductFragment : Fragment() {
                     findNavController().navigate(action)
                 } else {
                     val action = AddEditProductFragmentDirections
-                        .actionAddEditProductFragmentToDetailProductFragment(args.keyProduct)
+                        .actionAddEditProductFragmentToDetailProductFragment(args.productId)
                     findNavController().navigate(action)
                 }
             })

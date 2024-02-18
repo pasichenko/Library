@@ -6,88 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".ui.detail.DetailProductFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/compose_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="8dp">
-
-        <TextView
-            android:id="@+id/key_tv"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="TextView" />
-
-        <TextView
-            android:id="@+id/uid_tv"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/key_tv"
-            tools:text="TextView" />
-
-        <TextView
-            android:id="@+id/name_tv"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/uid_tv"
-            tools:text="TextView" />
-
-        <TextView
-            android:id="@+id/size_tv"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/name_tv"
-            tools:text="TextView" />
-
-        <TextView
-            android:id="@+id/timestamp_tv"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/size_tv"
-            tools:text="TextView" />
-
-        <TextView
-            android:id="@+id/expiration_timestamp_tv"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/timestamp_tv"
-            tools:text="TextView" />
-
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/status_container_btn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/expiration_timestamp_tv"
-            app:singleSelection="true"
-            app:selectionRequired="true"
-            android:orientation="vertical">
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="match_parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/edit_fab"

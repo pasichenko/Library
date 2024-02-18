@@ -27,7 +27,7 @@
         tools:layout="@layout/detail_product_fragment">
 
         <argument
-            android:name="key_product"
+            android:name="productId"
             app:argType="string" />
         <action
             android:id="@+id/action_detailProductFragment_to_nav_home"
@@ -44,7 +44,7 @@
         android:name="com.makspasich.library.ui.addeditproduct.AddEditProductFragment"
         android:label="{title}">
         <argument
-            android:name="keyProduct"
+            android:name="productId"
             app:argType="string" />
         <argument
             android:name="isNewProduct"

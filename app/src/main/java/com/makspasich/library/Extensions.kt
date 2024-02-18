@@ -3,6 +3,13 @@ package com.makspasich.library
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowDown
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowUp
+import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -62,5 +69,15 @@ fun State.toText(): String {
         State.FOREGROUND -> "FOREGROUND"
         State.UNDEFINED -> "UNDEFINED"
         State.DELETED -> "DELETED"
+    }
+}
+
+fun State.image(): ImageVector {
+    return when (this) {
+        State.CREATED -> Icons.Filled.Create
+        State.UNDERGROUND -> Icons.Filled.KeyboardDoubleArrowDown
+        State.FOREGROUND -> Icons.Filled.KeyboardDoubleArrowUp
+        State.UNDEFINED -> Icons.Filled.QuestionMark
+        State.DELETED -> Icons.Filled.Delete
     }
 }

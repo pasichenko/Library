@@ -24,7 +24,7 @@ class DataViewHolder(
             binding.stateTv.text = it.state.toText()
             binding.idTv.text = it.key
             itemView.setOnClickListener { view ->
-                val action = ProductsFragmentDirections.actionOpenDetailProductFragment(it.key!!)
+                val action = ProductsFragmentDirections.actionOpenDetailProductFragment(it.key)
                 Navigation.createNavigateOnClickListener(action).onClick(view)
             }
             binding.tagsChipGroup.removeAllViews()
