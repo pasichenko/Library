@@ -5,10 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -35,6 +37,7 @@ class DetailProductFragment : Fragment() {
                 val viewState by viewModel.state.collectAsStateWithLifecycle()
                 Surface(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
                     DetailProductScreenContent(
+                        modifier = Modifier.padding(16.dp),
                         product = viewState.product,
                         onStateChange = viewModel::onStateChanged
                     )

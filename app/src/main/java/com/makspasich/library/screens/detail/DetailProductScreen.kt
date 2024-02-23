@@ -3,7 +3,6 @@ package com.makspasich.library.screens.detail
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,7 +15,6 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.makspasich.library.image
 import com.makspasich.library.model.Product
 import com.makspasich.library.model.State
@@ -29,14 +27,13 @@ fun DetailProductScreen() {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun DetailProductScreenContent(
+    modifier: Modifier = Modifier,
     product: Product,
-    onStateChange: (State) -> Unit,
-    modifier: Modifier = Modifier
+    onStateChange: (State) -> Unit
 ) {
     Column(
         modifier
             .fillMaxSize()
-            .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
         Text(

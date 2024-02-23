@@ -4,21 +4,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.chip.Chip
-import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener
-import com.makspasich.library.EventObserver
-import com.makspasich.library.R
 import com.makspasich.library.databinding.AddEditProductFragmentBinding
-import com.makspasich.library.databinding.CatChipGroupItemBinding
-import com.makspasich.library.databinding.CatChipGroupItemChoiceBinding
-import com.makspasich.library.formatDate
-import com.makspasich.library.twoWayBinding
-import com.makspasich.library.ui.addname.AddNameDialog
+import com.makspasich.library.screens.edit.EditProductScreenContent
+import com.makspasich.library.screens.edit.tag_dialog.CreateTagDialog
+import com.makspasich.library.theme.LibraryTheme
 
 
 class AddEditProductFragment : Fragment() {
@@ -32,138 +38,50 @@ class AddEditProductFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = AddEditProductFragmentBinding.inflate(inflater, container, false)
+        binding.composeView.setContent {
+            LibraryTheme {
+                Surface(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
+                    val viewModel: AddEditProductViewModel = viewModel()
+                    val viewState by viewModel.state.collectAsStateWithLifecycle()
+                    var showDialog by remember { mutableStateOf(false) }
+
+                    if (showDialog) {
+                        CreateTagDialog(
+                            onDismissRequest = { showDialog = false },
+                            onConfirmation = { showDialog = false }
+                        )
+                    }
+                    if (viewState.loading) {
+                        CircularProgressIndicator()
+                    } else {
+                        EditProductScreenContent(
+                            modifier = Modifier.padding(16.dp),
+                            product = viewState.product,
+                            tags = viewState.tags,
+                            onNameChange = viewModel::onNameChange,
+                            onTimestampChange = viewModel::onTimestampChange,
+                            onExpiredTimestampChange = viewModel::onExpiredTimestampChange,
+                            onSizeChange = viewModel::onSizeChange,
+                            onTagChange = viewModel::addOrRemoveTag,
+                            onClickAddTag = {
+                                showDialog = true
+                            }
+                        )
+                    }
+                }
+            }
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.start(args.productId, args.isNewProduct)
         binding.saveFab.setOnClickListener {
-            viewModel.saveProduct()
-            viewModel.updateQRState()
-        }
-        setupFieldsLiveData()
-        setupNavigation()
-        setupPlaceholderChipName()
-        setupChipNamesData()
-        viewModel.timestampLiveData.observe(viewLifecycleOwner) {
-            binding.timestampEt.setText(it.formatDate("dd MMM yyyy"))
-        }
-        viewModel.expirationTimestampLiveData.observe(viewLifecycleOwner) {
-            binding.expirationTimestampEt.setText(it.formatDate("dd MMM yyyy"))
-        }
-
-        binding.timestampEt.setOnClickListener {
-            val picker = materialDatePicker { selection: Long? ->
-                viewModel.setTimestampProduct(selection)
-            }
-            picker.show(childFragmentManager, picker.toString())
-        }
-        binding.expirationTimestampEt.setOnClickListener {
-            val picker = materialDatePicker { selection: Long? ->
-                viewModel.setExpirationTimestampProduct(selection)
-            }
-            picker.show(childFragmentManager, picker.toString())
-        }
-//        viewModel.sizeLiveData.observe(viewLifecycleOwner){
-//            binding.sizeSlider.value = it.toFloat()
-//        }
-//        binding.sizeSlider.addOnChangeListener(Slider.OnChangeListener { slider, value, fromUser ->
-//            viewModel.setSizeProduct(BigDecimal(value.toString()).setScale(2,RoundingMode.FLOOR))
-//        })
-    }
-
-    private fun materialDatePicker(listener: MaterialPickerOnPositiveButtonClickListener<Long>): MaterialDatePicker<Long> {
-        val builder = MaterialDatePicker.Builder.datePicker()
-        builder.setSelection(MaterialDatePicker.todayInUtcMilliseconds())
-        val picker: MaterialDatePicker<Long> = builder.build()
-        picker.addOnPositiveButtonClickListener(listener)
-        return picker
-    }
-
-    private fun setupFieldsLiveData() {
-        binding.keyEt.twoWayBinding(
-            requireParentFragment(),
-            viewModel.keyLiveData
-        ) { viewModel.setKeyProduct(it) }
-        binding.nameProductEt.twoWayBinding(
-            requireParentFragment(),
-            viewModel.nameLiveData
-        ) { viewModel.setNameProduct(it) }
-        binding.sizeEt.twoWayBinding(
-            requireParentFragment(),
-            viewModel.sizeLiveData
-        ) { viewModel.setSizeProduct(it) }
-
-    }
-
-    private fun setupNavigation() {
-        viewModel.productUpdatedEvent.observe(viewLifecycleOwner,
-            EventObserver {
-                if (args.isNewProduct) {
-                    val action = AddEditProductFragmentDirections
-                        .actionAddEditProductFragmentToNavActive()
-                    findNavController().navigate(action)
-                } else {
-                    val action = AddEditProductFragmentDirections
-                        .actionAddEditProductFragmentToDetailProductFragment(args.productId)
-                    findNavController().navigate(action)
-                }
-            })
-    }
-
-    private fun setupPlaceholderChipName() {
-        val chipPlaceholder =
-            CatChipGroupItemBinding.inflate(layoutInflater, binding.chipsNames, false)
-        chipPlaceholder.root.apply {
-            text = context.getString(R.string.data_loading)
-            isCheckable = false
-        }
-        binding.chipsNames.addView(chipPlaceholder.root)
-    }
-
-    private fun setupChipNamesData() {
-        viewModel.dataLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (!isLoading) {
-                viewModel.allTagsLiveData.observe(viewLifecycleOwner) { tags ->
-                    binding.chipsNames.removeAllViews()
-                    for (tag in tags) {
-                        val chip = CatChipGroupItemChoiceBinding.inflate(
-                            layoutInflater,
-                            binding.chipsNames,
-                            false
-                        )
-                        chip.root.text = tag.name
-                        viewModel.productTagsLiveData.value?.let { productTags ->
-                            for (productTag in productTags) {
-                                if (productTag.key == tag.key) {
-                                    chip.root.isChecked = true
-                                }
-                            }
-                        }
-                        chip.root.setOnCheckedChangeListener { _, isChecked ->
-                            if (isChecked) {
-                                viewModel.addTagProduct(tag)
-                            } else {
-                                viewModel.removeTagProduct(tag)
-                            }
-                        }
-                        binding.chipsNames.addView(chip.root)
-                    }
-                    val chipAdd = getChipAdd(text = "Add name") {
-                        AddNameDialog().show(childFragmentManager, "addName")
-                    }
-                    binding.chipsNames.addView(chipAdd)
-                }
+            viewModel.saveProduct {
+                val action = AddEditProductFragmentDirections
+                    .actionAddEditProductFragmentToDetailProductFragment(args.productId)
+                findNavController().navigate(action)
             }
         }
-    }
-
-
-    private fun getChipAdd(text: String, onClickListener: View.OnClickListener): Chip {
-        val chipBinding = CatChipGroupItemBinding.inflate(layoutInflater, binding.chipsNames, false)
-        chipBinding.root.text = text
-        chipBinding.root.setOnClickListener(onClickListener)
-        return chipBinding.root
     }
 }
