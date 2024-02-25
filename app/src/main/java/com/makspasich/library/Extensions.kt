@@ -10,9 +10,6 @@ import androidx.compose.material.icons.filled.KeyboardDoubleArrowDown
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowUp
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import com.makspasich.library.model.State
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -20,38 +17,6 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.absoluteValue
-
-/**
- * Extension function to simplify setting an afterTextChanged action to EditText components.
- */
-fun EditText.afterTextChanged(afterTextChanged: (String) -> Unit) {
-    this.addTextChangedListener(object : TextWatcher {
-        override fun afterTextChanged(editable: Editable?) {
-            afterTextChanged.invoke(editable.toString())
-        }
-
-        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
-        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-    })
-}
-
-/**
- * Custom realization two way binding without DataBinding library
- */
-fun EditText.twoWayBinding(
-    lifecycleOwner: LifecycleOwner,
-    getDataFromViewModel: LiveData<String>,
-    setDataToViewModel: (String) -> Unit
-) {
-    getDataFromViewModel.observe(lifecycleOwner, Observer {
-        if (it == this.text.toString()) {
-            return@Observer
-        }
-        this.setText(it)
-    })
-    this.afterTextChanged(setDataToViewModel)
-}
 
 fun Long.formatDate(format: String): String? {
     val sdf: DateFormat = SimpleDateFormat(format, Locale.getDefault())
