@@ -1,16 +1,3 @@
 <resources>
     <string name="app_name">Library</string>
-    <string name="title_activity_main">MainActivity</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
-
-    <string name="menu_products">Products</string>
-    <string name="menu_statistic">Statistics</string>
-    <string name="logout">Logout</string>
-    <string name="detail_product">Detail product</string>
-    <string name="edit_product">Edit product</string>
-    <string name="add_product">Add product</string>
-    <string name="data_loading">Data loading</string>
-
 </resources>

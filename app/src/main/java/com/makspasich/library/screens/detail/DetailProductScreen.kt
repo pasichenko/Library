@@ -1,27 +1,54 @@
 package com.makspasich.library.screens.detail
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.makspasich.library.image
 import com.makspasich.library.model.Product
 import com.makspasich.library.model.State
 
 @Composable
-fun DetailProductScreen() {
-
+fun DetailProductScreen(
+    editProduct: (String) -> Unit,
+    viewModel: DetailProductViewModel = viewModel()
+) {
+    val viewState by viewModel.state.collectAsStateWithLifecycle()
+    Scaffold(
+        floatingActionButton = {
+            AnimatedVisibility(visible = !viewState.loading) {
+                FloatingActionButton(onClick = { editProduct(viewState.product.key) }) {
+                    Icon(imageVector = Icons.Filled.Edit, contentDescription = null)
+                }
+            }
+        }
+    ) {
+        DetailProductScreenContent(
+            modifier = Modifier.padding(it),
+            product = viewState.product,
+            onStateChange = viewModel::onStateChanged
+        )
+    }
 }
 
 @Composable
@@ -29,7 +56,7 @@ fun DetailProductScreen() {
 fun DetailProductScreenContent(
     modifier: Modifier = Modifier,
     product: Product,
-    onStateChange: (State) -> Unit
+    onStateChange: (State) -> Unit,
 ) {
     Column(
         modifier

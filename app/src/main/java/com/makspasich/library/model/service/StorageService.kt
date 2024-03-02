@@ -6,18 +6,25 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.dataObjects
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObject
 import com.makspasich.library.model.Product
 import com.makspasich.library.model.TagName
+import com.makspasich.library.model.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
 private const val PRODUCTS = "products"
 private const val LAST_INSERTED = "last-inserted"
 private const val TAGS = "tags"
+private const val USERS = "users"
+private const val QR_CODES = "qr-codes"
 
 class StorageService(
     private val firestore: FirebaseFirestore = Firebase.firestore
 ) {
+    suspend fun getUser(uid: String): User? =
+        firestore.collection(USERS).document(uid).get().await().toObject<User>()
+
     fun getProducts(): Flow<List<Product>> =
         firestore.collection(PRODUCTS).dataObjects<Product>()
 
@@ -45,7 +52,7 @@ class StorageService(
     suspend fun updateQrState(productId: String, state: String) {
         val hashMap = HashMap<String, Any>()
         hashMap["state"] = state
-        firestore.collection("qr-codes").document(productId).update(hashMap).await()
+        firestore.collection(QR_CODES).document(productId).update(hashMap).await()
     }
 
     suspend fun saveIfNotExists(tagName: String) {

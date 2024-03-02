@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.makspasich.library.model.Product
 import com.makspasich.library.model.State
 import com.makspasich.library.model.TagName
-import com.makspasich.library.theme.LibraryTheme
+import com.makspasich.library.ui.theme.LibraryTheme
 import com.makspasich.library.toText
 import com.makspasich.library.util.shortKey
 
